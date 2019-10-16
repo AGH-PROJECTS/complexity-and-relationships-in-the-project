@@ -20,7 +20,8 @@ public class Main {
             Set<Entry<String, Map<String, Integer>>> entrySet = fileUsageMap.entrySet();
             for(Entry<String, Map<String, Integer>> entry: entrySet){
                 fileDataList.add(new FileData(entry.getKey(),filesInformation.get(entry.getKey()),entry.getValue());
-            }*/
+            }
+            */
 
 
         } catch (IOException e) {
