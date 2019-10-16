@@ -1,76 +1,88 @@
 import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.view.mxGraph;
 
 import org.jgrapht.ListenableGraph;
-import org.jgrapht.ext.*;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultListenableGraph;
+import org.jgrapht.graph.DirectedWeightedPseudograph;
 
 import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 
 public class JGraphXDraw extends JApplet {
-    private static final long serialVersionUID = 2202072534703043194L;
-
+    private static Map<String, Map<String, Integer>> fileUsageMap;
     private static final Dimension DEFAULT_SIZE = new Dimension(530, 320);
+    private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-    private JGraphXAdapter<String, DefaultEdge> jgxAdapter;
-
-    public static void createGraphX(){
+    public static void createGraphX(Map<String, Map<String, Integer>> filesMap){
         JGraphXDraw applet = new JGraphXDraw();
+        fileUsageMap = filesMap;
         applet.init();
 
         JFrame frame = new JFrame();
         frame.getContentPane().add(applet);
-        frame.setTitle("JGraphT Adapter to JGraphX Demo");
+        frame.setTitle("Inżynieria oprogramowania - rozpoczęcie projektu");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+        frame.setSize(screenSize.width, screenSize.height);
+        frame.setResizable(false);
         frame.setVisible(true);
     }
     @Override
     public void init(){
         ListenableGraph<String, DefaultEdge> g =
-                new DefaultListenableGraph<>(new DefaultDirectedGraph<>(DefaultEdge.class));
+                new DefaultListenableGraph<>(new DirectedWeightedPseudograph<>(DefaultEdge.class));
 
-        jgxAdapter = new JGraphXAdapter<>(g);
+        mxGraph graf = new mxGraph();
 
-        setPreferredSize(DEFAULT_SIZE);
-        mxGraphComponent component = new mxGraphComponent(jgxAdapter);
-        component.setConnectable(false);
-        component.getGraph().setAllowDanglingEdges(false);
-        getContentPane().add(component);
-        resize(DEFAULT_SIZE);
+        Object parent = graf.getDefaultParent();
 
-        String v1 = "v1";
-        String v2 = "v2";
-        String v3 = "v3";
-        String v4 = "v4";
+        ArrayList<Object> vertexList = new ArrayList<>();
 
-        // add some sample data (graph manipulated via JGraphX)
-        g.addVertex(v1);
-        g.addVertex(v2);
-        g.addVertex(v3);
-        g.addVertex(v4);
+        graf.getModel().beginUpdate();
+        try
+        {
+            Set<Map.Entry<String, Map<String, Integer>>> entrySet = fileUsageMap.entrySet();
+            for(Map.Entry<String, Map<String, Integer>> entry: entrySet){
+                vertexList.add(graf.insertVertex(parent, null, entry.getKey(), 0, 0, 80, 30));
+                Set<Map.Entry<String, Integer>> littleEntrySet = entry.getValue().entrySet();
+                for(Map.Entry<String, Integer> littleEntry: littleEntrySet){
+                    if(littleEntry.getValue() > 0){
+                      for(Object o: vertexList){
+                          if(o.toString().contains(littleEntry.getKey())){
+                              System.out.println(o.toString());
+                              graf.insertEdge(parent, null, "Edge", o, o);
+                          }
+                      }
+                    }
+                }
+            }
 
-        g.addEdge(v1, v2);
-        g.addEdge(v2, v3);
-        g.addEdge(v3, v1);
-        g.addEdge(v4, v3);
 
-        // positioning via jgraphx layouts
-        mxCircleLayout layout = new mxCircleLayout(jgxAdapter);
+        }
+        finally
+        {
+            graf.getModel().endUpdate();
+        }
 
-        // center the circle
+        mxGraphComponent graphComponent = new mxGraphComponent(graf);
+        mxCircleLayout layout = new mxCircleLayout(graf);
         int radius = 100;
         layout.setX0((DEFAULT_SIZE.width / 2.0) - radius);
         layout.setY0((DEFAULT_SIZE.height / 2.0) - radius);
         layout.setRadius(radius);
         layout.setMoveCircle(true);
 
-        layout.execute(jgxAdapter.getDefaultParent());
-        // that's all there is to it!...
+        layout.execute(graf.getDefaultParent());
+
+        getContentPane().add(graphComponent);
+
     }
+
 }
