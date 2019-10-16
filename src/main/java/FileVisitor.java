@@ -45,7 +45,11 @@ public class FileVisitor {
         for(Entry<String, String> entry: entrySet){
             Map<String,Integer> usageMap = new HashMap<>();
             for(String name: nameList){
-                usageMap.put(name, 0);
+                if(entry.getKey().equals(name)){
+                    usageMap.put(name, -1);
+                }else{
+                    usageMap.put(name, 0);
+                }
             }
 
             File file = new File(entry.getValue());
