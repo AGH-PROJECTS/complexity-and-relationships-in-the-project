@@ -15,13 +15,13 @@ public class Main {
             Map<String, Map<String, Integer>> fileUsageMap = new HashMap<>();
             fileUsageMap = fileVisitor.searchFiles();
             printUsageMap(fileUsageMap);
-            
+
             /*List<FileData> fileDataList=new LinkedList<>();
             Set<Entry<String, Map<String, Integer>>> entrySet = fileUsageMap.entrySet();
             for(Entry<String, Map<String, Integer>> entry: entrySet){
                 fileDataList.add(new FileData(entry.getKey(),fileSize,entry.getValue());  //fileSize do dodania
             }*/
-            
+
 
         } catch (IOException e) {
             e.printStackTrace();

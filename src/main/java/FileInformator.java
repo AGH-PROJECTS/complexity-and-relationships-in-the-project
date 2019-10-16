@@ -27,11 +27,11 @@ public class FileInformator {
                 .filter(
                         file -> file.isDirectory())
                 .forEach(dir -> {
-                            List<File> sourceFilesInDir = Arrays.asList(dir.listFiles()).stream()
-                                    .filter(file -> file.toString().endsWith(".java"))
-                                    .collect(Collectors.toList());
-                            sourceFilesInDir.forEach(file -> sourceFiles.add(file));
-                        });
+                    List<File> sourceFilesInDir = Arrays.asList(dir.listFiles()).stream()
+                            .filter(file -> file.toString().endsWith(".java"))
+                            .collect(Collectors.toList());
+                    sourceFilesInDir.forEach(file -> sourceFiles.add(file));
+                });
 
         sourceFiles.forEach(e-> {
             try {
