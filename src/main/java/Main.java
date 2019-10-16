@@ -10,7 +10,7 @@ public class Main {
             FileVisitor fileVisitor = new FileVisitor();
             fileVisitor.findFiles(ROOT_PATH);
             fileUsageMap = fileVisitor.searchFiles();
-
+//sprawdzam
 
         } catch (IOException e) {
             e.printStackTrace();
