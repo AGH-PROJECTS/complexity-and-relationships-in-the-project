@@ -25,6 +25,7 @@
 hs_err_pid*
 
 /ProjectIO.iml
-.gitignore
 .idea/
 ProjectIO.iml
+out/
+out/production/ProjectIO/META-INF/
