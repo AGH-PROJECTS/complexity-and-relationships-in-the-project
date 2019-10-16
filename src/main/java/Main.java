@@ -15,7 +15,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        JGraphXDraw.createGraphX(fileUsageMap);
+        JGraphXDraw.createGraphX(fileUsageMap, filesInformation);
     }
 
 }

@@ -47,12 +47,12 @@ public class FileInformator {
             }
         });
 
-        showInformation();
+        //showInformation();
         return infoAboutFile;
     }
 
-    private void showInformation() {
+    /*private void showInformation() {
         infoAboutFile.entrySet()
                 .forEach(file -> System.out.println("Name: " + file.getKey() +", size: " + file.getValue()));
-    }
+    }*/
 }
