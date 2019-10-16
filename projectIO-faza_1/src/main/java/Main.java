@@ -14,17 +14,16 @@ public class Main {
             fileVisitor.findFiles(ROOT_PATH);
             fileUsageMap = fileVisitor.searchFiles();
 
-            //int [][]graph = new int[fileVisitor.getNameList().size()][fileVisitor.getNameList().size()];
+            int [][]graph = new int[fileVisitor.getNameList().size()][fileVisitor.getNameList().size()];
 
-            //graph = graph(fileVisitor.getNameList());
-           // printList(graph,fileVisitor.getNameList());
+            graph = graph(fileVisitor.getNameList());
+            printList(graph,fileVisitor.getNameList());
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        JGraphXDraw.createGraphX(fileUsageMap, filesInformation);
+        JGraphXDraw.createGraphX(fileUsageMap);
     }
-
     private static int [][]graph (List<String> nameList)
     {
         int listsize = nameList.size();

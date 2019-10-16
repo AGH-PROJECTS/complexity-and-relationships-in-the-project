@@ -1,5 +1,3 @@
-package main.java;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -35,10 +33,10 @@ public class FileVisitor {
 
     public Map<String, Map<String, Integer>> searchFiles(){
         /*
-        * Zwraca mapę której kluczami są nazwy plików,
-        * a wartościami mapy z nazwami plików do których istnieją odwołania
-        * oraz liczbą tych odwołań
-        */
+         * Zwraca mapę której kluczami są nazwy plików,
+         * a wartościami mapy z nazwami plików do których istnieją odwołania
+         * oraz liczbą tych odwołań
+         */
         Map<String, Map<String, Integer>> fileUsageMap = new HashMap<>();
 
         Set<Entry<String, String>> entrySet = filesMap.entrySet();

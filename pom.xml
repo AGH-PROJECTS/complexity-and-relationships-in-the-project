@@ -6,20 +6,48 @@
 
     <groupId>pl.benki</groupId>
     <artifactId>projectIO</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
 
+    <version>1.3.2-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-compiler-plugin</artifactId>
-                 <version>3.8.0</version>
-                 <configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
                     <release>13</release>
-                 </configuration>
+                </configuration>
             </plugin>
         </plugins>
     </build>
-
-    
-</project>
+    <dependencies>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>1.3.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-io</artifactId>
+            <version>1.3.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-ext</artifactId>
+            <version>1.3.2-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+    <repositories>
+        <repository>
+            <id>maven-snapshots</id>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+  </project>
