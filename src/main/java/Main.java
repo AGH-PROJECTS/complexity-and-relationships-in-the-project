@@ -1,8 +1,6 @@
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 public class Main {
     public static final String ROOT_PATH = System.getProperty("user.dir");// scieżka, w której program szuka plików
