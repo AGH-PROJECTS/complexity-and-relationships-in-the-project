@@ -28,4 +28,5 @@ hs_err_pid*
 .idea/
 ProjectIO.iml
 out/
+target/
 out/production/ProjectIO/META-INF/
