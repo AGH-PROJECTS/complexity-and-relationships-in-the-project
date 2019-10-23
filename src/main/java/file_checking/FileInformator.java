@@ -1,3 +1,4 @@
+package file_checking;
 
 import java.io.File;
 import java.io.FileNotFoundException;

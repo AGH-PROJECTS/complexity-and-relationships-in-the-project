@@ -1,3 +1,5 @@
+package file_checking;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -56,9 +58,11 @@ public class FileVisitor {
                 String line;
                 while(scanner.hasNextLine()){
                     line = scanner.nextLine();
-                    for(String name: nameList){
-                        if(line.contains(name)){
-                            usageMap.put(name, usageMap.get(name) + 1);
+                    if(line.contains("import")){
+                        for(String name: nameList){
+                            if(line.contains(name)){
+                                usageMap.put(name, usageMap.get(name) + 1);
+                            }
                         }
                     }
                 }

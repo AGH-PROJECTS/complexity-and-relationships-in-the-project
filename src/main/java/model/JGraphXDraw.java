@@ -1,3 +1,5 @@
+package model;
+
 import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
@@ -29,7 +31,7 @@ public class JGraphXDraw extends JApplet {
         frame.setTitle("Inżynieria oprogramowania - rozpoczęcie projektu");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(screenSize.width, screenSize.height);
-        frame.setResizable(false);
+        frame.setResizable(true);
         frame.setVisible(true);
     }
 

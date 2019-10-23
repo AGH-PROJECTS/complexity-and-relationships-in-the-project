@@ -3,6 +3,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
+import file_checking.FileInformator;
+import file_checking.FileVisitor;
+import model.JGraphXDraw;
+
 public class Main {
     public static final String ROOT_PATH = System.getProperty("user.dir")+"\\src\\main\\java";// scieżka, w której program szuka plików
     private static Map<String, Map<String, Integer>> fileUsageMap = new HashMap<>();
