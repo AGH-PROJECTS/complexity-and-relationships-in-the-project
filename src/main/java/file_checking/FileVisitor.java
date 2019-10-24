@@ -74,5 +74,11 @@ public class FileVisitor {
         return fileUsageMap;
     }
 
+    public List<String> getNameList() {
+        return nameList;
+    }
 
+    public Map<String, String> getFilesMap() {
+        return filesMap;
+    }
 }
