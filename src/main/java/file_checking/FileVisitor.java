@@ -20,7 +20,7 @@ public class FileVisitor {
     //Klucz - nazwa pliku, wartość - ścieżka do pliku//
 
     public void findFiles(String rootPath) throws IOException {
-        Files.walk(Paths.get(rootPath)).filter((path -> path.toFile().isFile())).forEach(this::createFileMap);
+        //Files.walk(Paths.get(rootPath)).filter((path -> path.toFile().isFile())).forEach(this::createFileMap);
     }
 
     private void createFileMap(Path path) {

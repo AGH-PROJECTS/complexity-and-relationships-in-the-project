@@ -5,6 +5,7 @@ import java.util.*;
 
 import file_checking.FileInformator;
 import file_checking.FileVisitor;
+import model.InformationGenerator;
 import model.JGraphXDraw;
 
 public class Main {
@@ -16,8 +17,13 @@ public class Main {
         try {
             FileVisitor fileVisitor = new FileVisitor();
             fileVisitor.findFiles(ROOT_PATH);
+            fileVisitor.findFiles(ROOT_PATH);
             fileUsageMap = fileVisitor.searchFiles();
-
+            InformationGenerator informationGenerator = new InformationGenerator();
+            InformationGenerator informationGenerator1 = new InformationGenerator();
+            Map<String, Map<String, Integer>>  methods =  informationGenerator.getInformationMethods();
+            Map<String, Map<String, Integer>> packages = informationGenerator.getInformationPackages();
+            //informationGenerator1.getInformationMethods();
             //int [][]graph = new int[fileVisitor.getNameList().size()][fileVisitor.getNameList().size()];
 
             //graph = graph(fileVisitor.getNameList());
@@ -26,7 +32,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        JGraphXDraw.createGraphX(fileUsageMap, filesInformation);
+        //JGraphXDraw.createGraphX(fileUsageMap, filesInformation);
     }
 
     private static int [][]graph (List<String> nameList)
