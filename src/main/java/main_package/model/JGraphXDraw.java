@@ -1,4 +1,4 @@
-package model;
+package main_package.model;
 
 import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.model.mxCell;
@@ -13,7 +13,7 @@ import java.util.Set;
 
 import javax.swing.JApplet;
 import javax.swing.JFrame;
-//Main
+//main_package.Main
 public class JGraphXDraw extends JApplet {
     private static Map<String, Map<String, Integer>> fileUsageMap;
     private static Map<String,Long> filesInformation;
