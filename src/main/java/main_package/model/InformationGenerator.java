@@ -1,4 +1,4 @@
-package model;
+package main_package.model;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -11,7 +11,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSol
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-
+import com.github.javaparser.symbolsolver.utils.SymbolSolverCollectionStrategy;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,23 +27,18 @@ public class InformationGenerator {
     private Set<File> classes;
     private  List<String > classesName;
 
-    public InformationGenerator() {
+    public InformationGenerator() throws IOException {
         this.combinedTypeSolver = new CombinedTypeSolver();
         this.typeSolver = new JavaParserTypeSolver(MAIN_PATH);
         reflectionTypeSolver = new ReflectionTypeSolver();
         combinedTypeSolver.add(reflectionTypeSolver);
         combinedTypeSolver.add(typeSolver);
-        try {
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\javaparser\\javaparser-core\\3.15.5\\javaparser-core-3.15.5.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\javaparser\\javaparser-symbol-solver-core\\3.15.5\\javaparser-symbol-solver-core-3.15.5.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\javaparser\\javaparser-symbol-solver-logic\\3.15.5\\javaparser-symbol-solver-logic-3.15.5.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\javaparser\\javaparser-symbol-solver-model\\3.15.5\\javaparser-symbol-solver-model-3.15.5.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\org\\jgrapht\\jgrapht-core\\1.3.2-SNAPSHOT\\jgrapht-core-1.3.2-20191110.130638-30.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\org\\jgrapht\\jgrapht-ext\\1.3.2-SNAPSHOT\\jgrapht-ext-1.3.2-20191110.130651-31.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\org\\jgrapht\\jgrapht-io\\1.3.2-SNAPSHOT\\jgrapht-io-1.3.2-20191110.130647-31.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\vlsi\\mxgraph\\jgraphx\\3.9.8.1\\jgraphx-3.9.8.1.jar"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        SymbolSolverCollectionStrategy symbolSolverCollectionStrategy = new SymbolSolverCollectionStrategy();
+        String path = System.getProperty("java.class.path");
+        String[] p;
+        p = path.split(";");
+        for(int i=1;i<p.length;i++) {
+            combinedTypeSolver.add(new JarTypeSolver(p[i]));
         }
 
         this.javaSymbolSolver = new JavaSymbolSolver(combinedTypeSolver);
@@ -68,20 +63,16 @@ public class InformationGenerator {
             try {
                 cu = StaticJavaParser.parse(file);
                 CompilationUnit finalCu = cu;
-                cu.findAll(MethodDeclaration.class).stream().forEach(mcd-> {
-                    PackageNameSearching packageNameSearching = new PackageNameSearching();
-                    classesName.forEach(name -> {
-                        packageNameSearching.setName(name);
-                        mcd.accept(packageNameSearching, null);
-                    });
-                    if(packageNameSearching.getMapSize() > 0) {
-                        if(finalCu.getPackageDeclaration().isEmpty()) {
-                            packagesInformation.put("main",packageNameSearching.getPackageMap());
-                        } else {
-                            packagesInformation.put(finalCu.getPackageDeclaration().get().getName().asString(),packageNameSearching.getPackageMap());
-                        }
-                    }
-                });
+                cu.findAll(MethodDeclaration.class)
+                        .stream()
+                        .forEach(mcd-> {
+                            PackageNameSearching packageNameSearching = new PackageNameSearching();
+                            mcd.accept(packageNameSearching, null);
+
+                            if(packageNameSearching.getMapSize() > 0) {
+                                packagesInformation.put(finalCu.getPackageDeclaration().get().getName().asString(),packageNameSearching.getPackageMap());
+                            }
+                        });
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -97,22 +88,21 @@ public class InformationGenerator {
             CompilationUnit cu = null;
             try {
                 cu = StaticJavaParser.parse(file);
+                cu.findAll(MethodDeclaration.class)
+                        .stream()
+                        .forEach(mcd-> {
+                            MethodNameSearching methodNameSearching = new MethodNameSearching();
+                            mcd.accept(methodNameSearching, null);
 
-                cu.findAll(MethodDeclaration.class).stream().forEach(mcd-> {
-                   MethodNameSearching methodNameSearching = new MethodNameSearching();
-                    classesName.forEach(name -> {
-                        methodNameSearching.setName(name);
-                        mcd.accept(methodNameSearching, null);
-                    });
-                    if(methodNameSearching.getMapSize() > 0) {
-                        methodsInformation.put(mcd.resolve().getName(),methodNameSearching.getMethodMap());
-                    }
-                });
+                            if(methodNameSearching.getMapSize() > 0) {
+                                methodsInformation.put(mcd.resolve().getName(),methodNameSearching.getMethodMap());
+                            }
+
+                        });
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         });
-
 
         return methodsInformation;
     }
@@ -142,9 +132,9 @@ public class InformationGenerator {
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             super.visit(n,arg);
-            String methodClass = n.resolve().getClassName();
+            String methodQualifiedName = n.resolve().getQualifiedName();
 
-            if(methodClass.equals(name)){
+            if(methodQualifiedName.contains("main_package")){
                 String packageName = n.resolve().getPackageName();
                 if(packageMap.containsKey(packageName)) {
                     packageMap.put(packageName,packageMap.get(packageName).intValue() + 1);
@@ -174,9 +164,9 @@ public class InformationGenerator {
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             super.visit(n,arg);
-            String methodClass = n.resolve().getClassName();
+            String methodQualifiedName = n.resolve().getQualifiedName();
 
-            if(methodClass.equals(name)){
+            if(methodQualifiedName.contains("main_package")){
                 String methodName = n.resolve().getName();
                 if(methodMap.containsKey(methodName)) {
                     methodMap.put(methodName,methodMap.get(methodName).intValue() + 1);
