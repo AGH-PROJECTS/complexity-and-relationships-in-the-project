@@ -25,12 +25,17 @@ public class InformationGenerator {
     private JavaSymbolSolver javaSymbolSolver;
     private File mainDir;
     private Set<File> classes;
-    private  List<String > classesName;
+    private List<String > classesName;
+    private Map<String, Integer> packageInfo;
+    private Map<String, Integer> methodInfo;
 
     public InformationGenerator() throws IOException {
+        this.packageInfo = new HashMap<>();
+        this.methodInfo = new HashMap<>();
         this.combinedTypeSolver = new CombinedTypeSolver();
         this.typeSolver = new JavaParserTypeSolver(MAIN_PATH);
-        reflectionTypeSolver = new ReflectionTypeSolver();
+        this.reflectionTypeSolver = new ReflectionTypeSolver();
+
         combinedTypeSolver.add(reflectionTypeSolver);
         combinedTypeSolver.add(typeSolver);
         SymbolSolverCollectionStrategy symbolSolverCollectionStrategy = new SymbolSolverCollectionStrategy();
@@ -78,6 +83,19 @@ public class InformationGenerator {
             }
         });
 
+        for(Map.Entry<String, Map<String, Integer>> entry : packagesInformation.entrySet()) {
+            Map<String, Integer> mapValue = entry.getValue();
+
+            for(Map.Entry<String,Integer> entryMap : mapValue.entrySet()) {
+                String name = entryMap.getKey();
+                if(packageInfo.containsKey(name)) {
+                    packageInfo.put(name,packageInfo.get(name).intValue() + 1);
+                } else {
+                    packageInfo.put(name,1);
+                }
+            }
+        }
+
         return packagesInformation;
     }
 
@@ -103,6 +121,19 @@ public class InformationGenerator {
                 e.printStackTrace();
             }
         });
+
+        for(Map.Entry<String, Map<String, Integer>> entry : methodsInformation.entrySet()) {
+            Map<String, Integer> mapValue = entry.getValue();
+
+            for(Map.Entry<String,Integer> entryMap : mapValue.entrySet()) {
+                String name = entryMap.getKey();
+                if(methodInfo.containsKey(name)) {
+                    methodInfo.put(name,methodInfo.get(name).intValue() + 1);
+                } else {
+                    methodInfo.put(name,1);
+                }
+            }
+        }
 
         return methodsInformation;
     }
@@ -173,7 +204,6 @@ public class InformationGenerator {
                 } else {
                     methodMap.put(methodName,1);
                 }
-
             }
         }
 
@@ -184,5 +214,13 @@ public class InformationGenerator {
         public int getMapSize() {
             return methodMap.size();
         }
+    }
+
+    public Map<String, Integer> getPackageInfo() {
+        return packageInfo;
+    }
+
+    public Map<String, Integer> getMethodInfo() {
+        return methodInfo;
     }
 }

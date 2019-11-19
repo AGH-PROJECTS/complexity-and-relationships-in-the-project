@@ -28,7 +28,7 @@ public class Main {
         }
 
         JGraphXDraw newGraph = new JGraphXDraw();
-        newGraph.createGraphX(methods, filesInformation);
+        newGraph.createGraphX(packages, filesInformation);
     }
 
 }
