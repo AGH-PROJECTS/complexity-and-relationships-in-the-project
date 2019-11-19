@@ -82,20 +82,7 @@ public class InformationGenerator {
                 e.printStackTrace();
             }
         });
-
-        for(Map.Entry<String, Map<String, Integer>> entry : packagesInformation.entrySet()) {
-            Map<String, Integer> mapValue = entry.getValue();
-
-            for(Map.Entry<String,Integer> entryMap : mapValue.entrySet()) {
-                String name = entryMap.getKey();
-                if(packageInfo.containsKey(name)) {
-                    packageInfo.put(name,packageInfo.get(name).intValue() + 1);
-                } else {
-                    packageInfo.put(name,1);
-                }
-            }
-        }
-
+        addInformation(packagesInformation,packageInfo);
         return packagesInformation;
     }
 
@@ -121,20 +108,7 @@ public class InformationGenerator {
                 e.printStackTrace();
             }
         });
-
-        for(Map.Entry<String, Map<String, Integer>> entry : methodsInformation.entrySet()) {
-            Map<String, Integer> mapValue = entry.getValue();
-
-            for(Map.Entry<String,Integer> entryMap : mapValue.entrySet()) {
-                String name = entryMap.getKey();
-                if(methodInfo.containsKey(name)) {
-                    methodInfo.put(name,methodInfo.get(name).intValue() + 1);
-                } else {
-                    methodInfo.put(name,1);
-                }
-            }
-        }
-
+        addInformation(methodsInformation,methodInfo);
         return methodsInformation;
     }
 
@@ -213,6 +187,21 @@ public class InformationGenerator {
 
         public int getMapSize() {
             return methodMap.size();
+        }
+    }
+
+    private void addInformation(Map<String, Map<String, Integer>> mainMap, Map<String, Integer> valueMap) {
+        for(Map.Entry<String, Map<String, Integer>> entry : mainMap.entrySet()) {
+            Map<String, Integer> mapValue = entry.getValue();
+
+            for(Map.Entry<String,Integer> entryMap : mapValue.entrySet()) {
+                String name = entryMap.getKey();
+                if(valueMap.containsKey(name)) {
+                    valueMap.put(name,valueMap.get(name).intValue() + 1);
+                } else {
+                    valueMap.put(name,1);
+                }
+            }
         }
     }
 
