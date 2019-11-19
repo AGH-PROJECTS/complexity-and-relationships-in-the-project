@@ -1,4 +1,4 @@
-package model;
+package main_package.model;
 
 import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.model.mxCell;
