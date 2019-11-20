@@ -16,18 +16,26 @@ import main_package.model.JGraphXDraw;
 public class Main {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private static JFrame frame;
-    private static Map<String, Map<String, Integer>> methods;
-    private static Map<String, Map<String, Integer>> packages;
-    private static Map<String, Integer> methodsInfo;
-    private static Map<String, Integer> packagesInfo;
+    private static Map<String, Map<String, Integer>> filesRelations;
+    private static Map<String, Map<String, Integer>> methodsRelations;
+    private static Map<String, Map<String, Integer>> packagesRelations;
+    private static Map<String, Integer> filesWeights;
+    private static Map<String, Integer> methodsWeights;
+    private static Map<String, Integer> packagesWeights;
     public static void main(String[] args) {
         try {
             InformationGenerator informationGenerator = new InformationGenerator();
-            methods =  informationGenerator.getAllInformationMethods();
-            methodsInfo = informationGenerator.getWeightsOfMethods();
 
-            packages = informationGenerator.getAllInformationPackages();
-            packagesInfo = informationGenerator.getWeightsOfPackages();
+            methodsRelations =  informationGenerator.getMethodsRelations();
+            methodsWeights = informationGenerator.getMethodsWeights();
+
+            packagesRelations = informationGenerator.getPackagesRelations();
+            packagesWeights = informationGenerator.getPackagesWeights();
+
+            filesRelations = informationGenerator.getFilesRelations();
+            filesWeights = informationGenerator.getFilesWeights();
+            System.out.println(filesRelations);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -40,17 +48,15 @@ public class Main {
         panel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
         JButton btn1 = new JButton("Historia 1");
-        btn1.addActionListener(e ->  {
-
-        });
+        btn1.addActionListener(e ->  applet.createGraphX(filesRelations, filesWeights, frame));
         panel.add(btn1,BorderLayout.PAGE_START);
 
         JButton btn2 = new JButton("Historia 2");
-        btn2.addActionListener(e -> applet.createGraphX(methods, methodsInfo, frame));
+        btn2.addActionListener(e -> applet.createGraphX(methodsRelations, methodsWeights, frame));
         panel.add(btn2,BorderLayout.CENTER);
 
         JButton btn3 = new JButton("Historia 3");
-        btn3.addActionListener(e -> applet.createGraphX(packages, packagesInfo, frame));
+        btn3.addActionListener(e -> applet.createGraphX(packagesRelations, packagesWeights, frame));
         panel.add(btn3,BorderLayout.LINE_END);
 
         allContent.add(panel, BorderLayout.PAGE_START);
@@ -66,4 +72,7 @@ public class Main {
         frame.setVisible(true);
     }
 
+    public static Map<String, Map<String, Integer>> getMethodsRelations() {
+        return methodsRelations;
+    }
 }
