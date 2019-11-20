@@ -1,7 +1,4 @@
 package main_package;
-
-import com.mxgraph.view.mxGraph;
-
 import java.awt.BorderLayout;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;
@@ -9,7 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.*;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -27,12 +23,11 @@ public class Main {
     public static void main(String[] args) {
         try {
             InformationGenerator informationGenerator = new InformationGenerator();
-            // TODO: 20.11.2019 change packagesInfo and methodInfo because is not complete
-            methods =  informationGenerator.getInformationMethods();
-            methodsInfo = informationGenerator.getMethodInfo();
+            methods =  informationGenerator.getInformationMethodsCounter();
+            methodsInfo = informationGenerator.getInformationMethodsWages();
 
-            packages = informationGenerator.getInformationPackages();
-            packagesInfo = informationGenerator.getPackageInfo();
+            packages = informationGenerator.getInformationPackagesCounter();
+            packagesInfo = informationGenerator.getInformationPackegesWages();
         } catch (IOException e) {
             e.printStackTrace();
         }
