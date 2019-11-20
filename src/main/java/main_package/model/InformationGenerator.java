@@ -60,7 +60,7 @@ public class InformationGenerator {
         classes.forEach(file-> classesName.add(file.getName().substring(0,file.getName().lastIndexOf(".java"))));
     }
 
-    public Map<String, Map<String, Integer>> getInformationPackages() {
+    public Map<String, Map<String, Integer>> getInformationPackagesCounter() {
         Map<String, Map<String, Integer>> packagesInformation = new HashMap<>();
 
         classes.forEach(file -> {
@@ -83,10 +83,11 @@ public class InformationGenerator {
             }
         });
         addInformation(packagesInformation,packageInfo);
+        packageInfo.put("main_package.main",1);
         return packagesInformation;
     }
 
-    public Map<String, Map<String, Integer>> getInformationMethods() {
+    public Map<String, Map<String, Integer>> getInformationMethodsCounter() {
         Map<String, Map<String, Integer>> methodsInformation = new HashMap<>();
 
         classes.forEach(file -> {
@@ -109,6 +110,7 @@ public class InformationGenerator {
             }
         });
         addInformation(methodsInformation,methodInfo);
+        methodInfo.put("main",1);
         return methodsInformation;
     }
 
@@ -203,13 +205,14 @@ public class InformationGenerator {
                 }
             }
         }
+        valueMap.put("main_package.main",1);
     }
 
-    public Map<String, Integer> getPackageInfo() {
+    public Map<String, Integer> getInformationPackegesWages() {
         return packageInfo;
     }
 
-    public Map<String, Integer> getMethodInfo() {
+    public Map<String, Integer> getInformationMethodsWages() {
         return methodInfo;
     }
 }
