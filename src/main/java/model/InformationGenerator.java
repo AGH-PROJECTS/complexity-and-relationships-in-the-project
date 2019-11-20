@@ -34,14 +34,14 @@ public class InformationGenerator {
         combinedTypeSolver.add(reflectionTypeSolver);
         combinedTypeSolver.add(typeSolver);
         try {
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\javaparser\\javaparser-core\\3.15.5\\javaparser-core-3.15.5.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\javaparser\\javaparser-symbol-solver-core\\3.15.5\\javaparser-symbol-solver-core-3.15.5.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\javaparser\\javaparser-symbol-solver-logic\\3.15.5\\javaparser-symbol-solver-logic-3.15.5.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\javaparser\\javaparser-symbol-solver-model\\3.15.5\\javaparser-symbol-solver-model-3.15.5.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\org\\jgrapht\\jgrapht-core\\1.3.2-SNAPSHOT\\jgrapht-core-1.3.2-20191110.130638-30.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\org\\jgrapht\\jgrapht-ext\\1.3.2-SNAPSHOT\\jgrapht-ext-1.3.2-20191110.130651-31.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\org\\jgrapht\\jgrapht-io\\1.3.2-SNAPSHOT\\jgrapht-io-1.3.2-20191110.130647-31.jar"));
-            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\dawid\\.m2\\repository\\com\\github\\vlsi\\mxgraph\\jgraphx\\3.9.8.1\\jgraphx-3.9.8.1.jar"));
+            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\Maciej Rumas\\.m2\\repository\\com\\github\\javaparser\\javaparser-core\\3.15.5\\javaparser-core-3.15.5.jar"));
+            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\Maciej Rumas\\.m2\\repository\\com\\github\\javaparser\\javaparser-symbol-solver-core\\3.15.5\\javaparser-symbol-solver-core-3.15.5.jar"));
+            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\Maciej Rumas\\.m2\\repository\\com\\github\\javaparser\\javaparser-symbol-solver-logic\\3.15.5\\javaparser-symbol-solver-logic-3.15.5.jar"));
+            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\Maciej Rumas\\.m2\\repository\\com\\github\\javaparser\\javaparser-symbol-solver-model\\3.15.5\\javaparser-symbol-solver-model-3.15.5.jar"));
+            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\Maciej Rumas\\.m2\\repository\\org\\jgrapht\\jgrapht-core\\1.3.2-SNAPSHOT\\jgrapht-core-1.3.2-20191009.135756-22.jar"));
+            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\Maciej Rumas\\.m2\\repository\\org\\jgrapht\\jgrapht-ext\\1.3.2-SNAPSHOT\\jgrapht-ext-1.3.2-20191009.135833-23.jar"));
+            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\Maciej Rumas\\.m2\\repository\\org\\jgrapht\\jgrapht-io\\1.3.2-SNAPSHOT\\jgrapht-io-1.3.2-20191009.135814-23.jar"));
+            combinedTypeSolver.add(new JarTypeSolver("C:\\Users\\Maciej Rumas\\.m2\\repository\\com\\github\\vlsi\\mxgraph\\jgraphx\\3.9.8.1\\jgraphx-3.9.8.1.jar"));
         } catch (IOException e) {
             e.printStackTrace();
         }
