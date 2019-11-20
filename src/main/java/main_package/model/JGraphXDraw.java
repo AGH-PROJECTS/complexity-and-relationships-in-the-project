@@ -7,7 +7,6 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 
-
 import org.w3c.dom.Node;
 
 import java.awt.HeadlessException;
@@ -33,7 +32,9 @@ public class JGraphXDraw extends JApplet {
 
         ArrayList<mxCell> vertexList = new ArrayList<>();
         ArrayList<mxCell> vertexList2;
-
+        ArrayList<Object> sss = new ArrayList<>();
+        System.out.println(projectStructure);
+        System.out.println(projectInfo);
         Set<Map.Entry<String, Integer>> infoEntrySet = projectInfo.entrySet();
         for(Map.Entry<String, Integer> infoEntry : infoEntrySet){
             vertexList.add((mxCell) newGraph.insertVertex(parent, null, infoEntry.getKey(), 0, 0, infoEntry.getValue()*45, infoEntry.getValue()*45));
@@ -46,16 +47,18 @@ public class JGraphXDraw extends JApplet {
             for (Map.Entry<String, Integer> littleEntry : littleEntrySet) {
 
                 if (littleEntry.getValue() > 0) {
-                    for (Object o : vertexList) {
-                        for (Object o2 : vertexList2) {
-                            if (o.toString().contains(entry.getKey())) {
-                                if (o2.toString().contains(littleEntry.getKey())) {
-                                    newGraph.insertEdge(parent, null, littleEntry.getValue(), o, o2);
+                    for (mxCell o : vertexList) {
+                        for (mxCell o2 : vertexList2) {
+                            if (o.getValue().equals(entry.getKey())) {
+                                if (o2.getValue().equals(littleEntry.getKey())) {
+                                    sss.add(newGraph.insertEdge(parent, null, littleEntry.getValue(), o, o2));
+                                    System.out.println(sss);
                                 }
                             }
                         }
                     }
                 }
+                System.out.println(littleEntry.getValue());
             }
         }
         exportGraph(newGraph);
@@ -84,7 +87,7 @@ public class JGraphXDraw extends JApplet {
         mxCodec codec = new mxCodec();
         Node node = codec.encode(myGraph.getModel());
         String xml = mxUtils.getXml(node);
-        System.out.println(xml);
+        //System.out.println(xml);
     }
 
 }
