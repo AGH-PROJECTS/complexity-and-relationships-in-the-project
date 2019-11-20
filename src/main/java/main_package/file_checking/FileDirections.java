@@ -1,4 +1,4 @@
-package file_checking;
+package main_package.file_checking;
 
 import java.io.File;
 import java.io.FileNotFoundException;
