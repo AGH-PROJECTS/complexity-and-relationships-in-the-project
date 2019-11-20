@@ -26,12 +26,12 @@ public class InformationGenerator {
     private File mainDir;
     private Set<File> classes;
     private List<String > classesName;
-    private Map<String, Integer> packageInfo;
-    private Map<String, Integer> methodInfo;
+    private Map<String, Integer> wagesPackagesMap;
+    private Map<String, Integer> wagesMethodsMap;
 
     public InformationGenerator() throws IOException {
-        this.packageInfo = new HashMap<>();
-        this.methodInfo = new HashMap<>();
+        this.wagesPackagesMap = new HashMap<>();
+        this.wagesMethodsMap = new HashMap<>();
         this.combinedTypeSolver = new CombinedTypeSolver();
         this.typeSolver = new JavaParserTypeSolver(MAIN_PATH);
         this.reflectionTypeSolver = new ReflectionTypeSolver();
@@ -60,8 +60,8 @@ public class InformationGenerator {
         classes.forEach(file-> classesName.add(file.getName().substring(0,file.getName().lastIndexOf(".java"))));
     }
 
-    public Map<String, Map<String, Integer>> getInformationPackagesCounter() {
-        Map<String, Map<String, Integer>> packagesInformation = new HashMap<>();
+    public Map<String, Map<String, Integer>> getAllInformationPackages() {
+        Map<String, Map<String, Integer>> allPackagesInformationMap = new HashMap<>();
 
         classes.forEach(file -> {
             CompilationUnit cu = null;
@@ -75,20 +75,20 @@ public class InformationGenerator {
                             mcd.accept(packageNameSearching, null);
 
                             if(packageNameSearching.getMapSize() > 0) {
-                                packagesInformation.put(finalCu.getPackageDeclaration().get().getName().asString(),packageNameSearching.getPackageMap());
+                                allPackagesInformationMap.put(finalCu.getPackageDeclaration().get().getName().asString(),packageNameSearching.getPackageMap());
                             }
                         });
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         });
-        addInformation(packagesInformation,packageInfo);
-        packageInfo.put("main_package.main",1);
-        return packagesInformation;
+        addInformation(allPackagesInformationMap, wagesPackagesMap);
+        wagesPackagesMap.put("main_package",1);
+        return allPackagesInformationMap;
     }
 
-    public Map<String, Map<String, Integer>> getInformationMethodsCounter() {
-        Map<String, Map<String, Integer>> methodsInformation = new HashMap<>();
+    public Map<String, Map<String, Integer>> getAllInformationMethods() {
+        Map<String, Map<String, Integer>> allMethodsInformationMap = new HashMap<>();
 
         classes.forEach(file -> {
             CompilationUnit cu = null;
@@ -101,7 +101,7 @@ public class InformationGenerator {
                             mcd.accept(methodNameSearching, null);
 
                             if(methodNameSearching.getMapSize() > 0) {
-                                methodsInformation.put(mcd.resolve().getName(),methodNameSearching.getMethodMap());
+                                allMethodsInformationMap.put(mcd.resolve().getName(),methodNameSearching.getMethodMap());
                             }
 
                         });
@@ -109,9 +109,9 @@ public class InformationGenerator {
                 e.printStackTrace();
             }
         });
-        addInformation(methodsInformation,methodInfo);
-        methodInfo.put("main",1);
-        return methodsInformation;
+        addInformation(allMethodsInformationMap, wagesMethodsMap);
+        wagesMethodsMap.put("main",1);
+        return allMethodsInformationMap;
     }
 
     private void checkDirectory(File file, Set<File> list) {
@@ -130,11 +130,6 @@ public class InformationGenerator {
 
     private static class PackageNameSearching extends VoidVisitorAdapter<Void> {
         private Map<String, Integer> packageMap = new HashMap<>();
-        private String name = null;
-
-        public void setName(String name) {
-            this.name = name;
-        }
 
         @Override
         public void visit(MethodCallExpr n, Void arg) {
@@ -144,29 +139,24 @@ public class InformationGenerator {
             if(methodQualifiedName.contains("main_package")){
                 String packageName = n.resolve().getPackageName();
                 if(packageMap.containsKey(packageName)) {
-                    packageMap.put(packageName,packageMap.get(packageName).intValue() + 1);
+                    packageMap.put(packageName,packageMap.get(packageName) + 1);
                 } else {
                     packageMap.put(packageName,1);
                 }
-
             }
         }
 
-        public Map<String, Integer> getPackageMap() {
+        private Map<String, Integer> getPackageMap() {
             return packageMap;
         }
 
-        public int getMapSize() {
+        private int getMapSize() {
             return packageMap.size();
         }
     }
 
     private static class MethodNameSearching extends VoidVisitorAdapter<Void> {
-        private String name = null;
         private Map<String, Integer> methodMap = new HashMap<>();
-        public void setName(String name) {
-            this.name = name;
-        }
 
         @Override
         public void visit(MethodCallExpr n, Void arg) {
@@ -176,18 +166,18 @@ public class InformationGenerator {
             if(methodQualifiedName.contains("main_package")){
                 String methodName = n.resolve().getName();
                 if(methodMap.containsKey(methodName)) {
-                    methodMap.put(methodName,methodMap.get(methodName).intValue() + 1);
+                    methodMap.put(methodName,methodMap.get(methodName) + 1);
                 } else {
                     methodMap.put(methodName,1);
                 }
             }
         }
 
-        public Map<String, Integer> getMethodMap() {
+        private Map<String, Integer> getMethodMap() {
             return methodMap;
         }
 
-        public int getMapSize() {
+        private int getMapSize() {
             return methodMap.size();
         }
     }
@@ -199,20 +189,19 @@ public class InformationGenerator {
             for(Map.Entry<String,Integer> entryMap : mapValue.entrySet()) {
                 String name = entryMap.getKey();
                 if(valueMap.containsKey(name)) {
-                    valueMap.put(name,valueMap.get(name).intValue() + 1);
+                    valueMap.put(name,valueMap.get(name)+ 1);
                 } else {
                     valueMap.put(name,1);
                 }
             }
         }
-        valueMap.put("main_package.main",1);
     }
 
-    public Map<String, Integer> getInformationPackegesWages() {
-        return packageInfo;
+    public Map<String, Integer> getWeightsOfPackages() {
+        return wagesPackagesMap;
     }
 
-    public Map<String, Integer> getInformationMethodsWages() {
-        return methodInfo;
+    public Map<String, Integer> getWeightsOfMethods() {
+        return wagesMethodsMap;
     }
 }
