@@ -23,11 +23,11 @@ public class Main {
     public static void main(String[] args) {
         try {
             InformationGenerator informationGenerator = new InformationGenerator();
-            methods =  informationGenerator.getInformationMethodsCounter();
-            methodsInfo = informationGenerator.getInformationMethodsWages();
+            methods =  informationGenerator.getAllInformationMethods();
+            methodsInfo = informationGenerator.getWeightsOfMethods();
 
-            packages = informationGenerator.getInformationPackagesCounter();
-            packagesInfo = informationGenerator.getInformationPackegesWages();
+            packages = informationGenerator.getAllInformationPackages();
+            packagesInfo = informationGenerator.getWeightsOfPackages();
         } catch (IOException e) {
             e.printStackTrace();
         }
