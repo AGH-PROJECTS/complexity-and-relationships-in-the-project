@@ -34,7 +34,6 @@ public class Main {
 
             filesRelations = informationGenerator.getFilesRelations();
             filesWeights = informationGenerator.getFilesWeights();
-            System.out.println(filesRelations);
 
         } catch (IOException e) {
             e.printStackTrace();
