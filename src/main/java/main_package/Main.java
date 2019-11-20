@@ -1,7 +1,5 @@
 package main_package;
 
-import com.mxgraph.view.mxGraph;
-
 import java.awt.BorderLayout;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;

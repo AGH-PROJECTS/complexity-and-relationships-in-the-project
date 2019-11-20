@@ -1,10 +1,14 @@
 package main_package.model;
 
+import com.mxgraph.io.mxCodec;
 import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 
+
+import org.w3c.dom.Node;
 
 import java.awt.HeadlessException;
 import java.util.ArrayList;
@@ -32,7 +36,7 @@ public class JGraphXDraw extends JApplet {
 
         Set<Map.Entry<String, Integer>> infoEntrySet = projectInfo.entrySet();
         for(Map.Entry<String, Integer> infoEntry : infoEntrySet){
-            vertexList.add((mxCell) newGraph.insertVertex(parent, null, infoEntry.getKey(), 0, 0, infoEntry.getValue()*50, infoEntry.getValue()*50));
+            vertexList.add((mxCell) newGraph.insertVertex(parent, null, infoEntry.getKey(), 0, 0, infoEntry.getValue()*45, infoEntry.getValue()*45));
         }
 
         Set<Map.Entry<String, Map<String, Integer>>> entrySet = projectStructure.entrySet();
@@ -54,6 +58,7 @@ public class JGraphXDraw extends JApplet {
                 }
             }
         }
+        exportGraph(newGraph);
         setCircleLayout();
         newGraph.getModel().endUpdate();
         SwingUtilities.updateComponentTreeUI(frame);
@@ -74,6 +79,12 @@ public class JGraphXDraw extends JApplet {
         layout.setMoveCircle(true);
 
         layout.execute(parent);
+    }
+    private void exportGraph(mxGraph myGraph){
+        mxCodec codec = new mxCodec();
+        Node node = codec.encode(myGraph.getModel());
+        String xml = mxUtils.getXml(node);
+        System.out.println(xml);
     }
 
 }
