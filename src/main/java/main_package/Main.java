@@ -10,6 +10,10 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import main_package.export.Diagram;
+import main_package.export.Package;
+import main_package.export.Dependency;
+import main_package.export.Entry;
 import main_package.model.InformationGenerator;
 import main_package.model.JGraphXDraw;
 
@@ -34,6 +38,21 @@ public class Main {
 
             filesRelations = informationGenerator.getFilesRelations();
             filesWeights = informationGenerator.getFilesWeights();
+            int id=1;
+            List<Entry> list=new LinkedList<Entry>();
+            list.add(new Diagram(id,"Package Diagram","PackageDiagram"));id++;
+            Map<String,Integer> ids=new HashMap<String,Integer>();
+            for(String e:packagesWeights.keySet()){
+                Package p=new Package(id,id+1,e+packagesWeights.get(e));
+                list.add(p);ids.put(p.getName(),id);id+=2;
+            }
+            for(String e:packagesRelations.keySet()){
+                for(String e2:packagesRelations.get(e).keySet())
+                    list.add(new Dependency(id,id+1,packagesRelations.get(e).get(e2),ids.get(e),ids.get(e2),id+2));id+=3;
+            }
+            String output="";
+            for(Entry e:list)
+                output+=e.write();
 
         } catch (IOException e) {
             e.printStackTrace();
