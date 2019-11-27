@@ -4,9 +4,14 @@ import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.util.*;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -26,6 +31,7 @@ public class Main {
     private static Map<String, Integer> filesWeights;
     private static Map<String, Integer> methodsWeights;
     private static Map<String, Integer> packagesWeights;
+    private static String graphOption;
     public static void main(String[] args) {
         try {
             InformationGenerator informationGenerator = new InformationGenerator();
@@ -53,7 +59,6 @@ public class Main {
             String output="";
             for(Entry e:list)
                 output+=e.write();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,19 +70,43 @@ public class Main {
         JPanel panel = new JPanel(new FlowLayout());
         panel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-        JButton btn1 = new JButton("Historia 1");
-        btn1.addActionListener(e ->  applet.createGraphX(filesRelations, filesWeights, frame));
-        panel.add(btn1,BorderLayout.PAGE_START);
+        String[] optionStrings = { "Historia 1", "Historia 2", "Historia 3", "Historia 1 i 2", "Historia 1 i 3", "Historia 2 i 3", "Wszystkie historie" };
 
-        JButton btn2 = new JButton("Historia 2");
-        btn2.addActionListener(e -> applet.createGraphX(methodsRelations, methodsWeights, frame));
-        panel.add(btn2,BorderLayout.CENTER);
+        JComboBox optionList = new JComboBox(optionStrings);
 
-        JButton btn3 = new JButton("Historia 3");
-        btn3.addActionListener(e -> applet.createGraphX(packagesRelations, packagesWeights, frame));
-        panel.add(btn3,BorderLayout.LINE_END);
-
-        allContent.add(panel, BorderLayout.PAGE_START);
+        graphOption = "Historia 1";
+        optionList.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED){
+                graphOption = optionList.getSelectedItem().toString();
+                switch (graphOption){
+                    case "Historia 1":
+                        applet.createGraphX(filesRelations, filesWeights, frame);
+                        break;
+                    case "Historia 2":
+                        applet.createGraphX(methodsRelations, methodsWeights, frame);
+                        break;
+                    case "Historia 3":
+                        applet.createGraphX(packagesRelations, packagesWeights, frame);
+                        break;
+                    case "Historia 1 i 2":
+                        applet.createGraphX(filesRelations, methodsRelations, filesWeights, methodsWeights, frame);
+                        break;
+                    case "Historia 1 i 3":
+                        applet.createGraphX(filesRelations, packagesRelations, filesWeights, packagesWeights, frame);
+                        break;
+                    case "Historia 2 i 3":
+                        applet.createGraphX(methodsRelations, packagesRelations, methodsWeights, packagesWeights, frame);
+                        break;
+                    case "Wszystkie historie":
+                        applet.createGraphX(filesRelations, methodsRelations, packagesRelations, filesWeights, methodsWeights, packagesWeights, frame);
+                        break;
+                    default:
+                        System.out.println("Nothing to show!");
+                        break;
+                }
+            }
+        });
+        allContent.add(optionList, BorderLayout.PAGE_START);
         allContent.add(applet,BorderLayout.CENTER);
 
         frame = new JFrame();
