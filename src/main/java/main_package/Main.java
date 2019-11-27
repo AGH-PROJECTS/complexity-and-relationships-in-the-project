@@ -4,23 +4,19 @@ import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import main_package.export.Diagram;
-import main_package.export.Package;
-import main_package.export.Dependency;
-import main_package.export.Entry;
+import com.jamesmurty.utils.XMLBuilder2;
 import main_package.model.InformationGenerator;
 import main_package.model.JGraphXDraw;
+import main_package.export.XMLCreator;
 
 public class Main {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -31,7 +27,6 @@ public class Main {
     private static Map<String, Integer> filesWeights;
     private static Map<String, Integer> methodsWeights;
     private static Map<String, Integer> packagesWeights;
-    private static String graphOption;
     public static void main(String[] args) {
         try {
             InformationGenerator informationGenerator = new InformationGenerator();
@@ -44,21 +39,7 @@ public class Main {
 
             filesRelations = informationGenerator.getFilesRelations();
             filesWeights = informationGenerator.getFilesWeights();
-            int id=1;
-            List<Entry> list=new LinkedList<Entry>();
-            list.add(new Diagram(id,"Package Diagram","PackageDiagram"));id++;
-            Map<String,Integer> ids=new HashMap<String,Integer>();
-            for(String e:packagesWeights.keySet()){
-                Package p=new Package(id,id+1,e+packagesWeights.get(e));
-                list.add(p);ids.put(p.getName(),id);id+=2;
-            }
-            for(String e:packagesRelations.keySet()){
-                for(String e2:packagesRelations.get(e).keySet())
-                    list.add(new Dependency(id,id+1,packagesRelations.get(e).get(e2),ids.get(e),ids.get(e2),id+2));id+=3;
-            }
-            String output="";
-            for(Entry e:list)
-                output+=e.write();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,43 +51,19 @@ public class Main {
         JPanel panel = new JPanel(new FlowLayout());
         panel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-        String[] optionStrings = { "Historia 1", "Historia 2", "Historia 3", "Historia 1 i 2", "Historia 1 i 3", "Historia 2 i 3", "Wszystkie historie" };
+        JButton btn1 = new JButton("Historia 1");
+        btn1.addActionListener(e ->  applet.createGraphX(filesRelations, filesWeights, frame));
+        panel.add(btn1,BorderLayout.PAGE_START);
 
-        JComboBox optionList = new JComboBox(optionStrings);
+        JButton btn2 = new JButton("Historia 2");
+        btn2.addActionListener(e -> applet.createGraphX(methodsRelations, methodsWeights, frame));
+        panel.add(btn2,BorderLayout.CENTER);
 
-        graphOption = "Historia 1";
-        optionList.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED){
-                graphOption = optionList.getSelectedItem().toString();
-                switch (graphOption){
-                    case "Historia 1":
-                        applet.createGraphX(filesRelations, filesWeights, frame);
-                        break;
-                    case "Historia 2":
-                        applet.createGraphX(methodsRelations, methodsWeights, frame);
-                        break;
-                    case "Historia 3":
-                        applet.createGraphX(packagesRelations, packagesWeights, frame);
-                        break;
-                    case "Historia 1 i 2":
-                        applet.createGraphX(filesRelations, methodsRelations, filesWeights, methodsWeights, frame);
-                        break;
-                    case "Historia 1 i 3":
-                        applet.createGraphX(filesRelations, packagesRelations, filesWeights, packagesWeights, frame);
-                        break;
-                    case "Historia 2 i 3":
-                        applet.createGraphX(methodsRelations, packagesRelations, methodsWeights, packagesWeights, frame);
-                        break;
-                    case "Wszystkie historie":
-                        applet.createGraphX(filesRelations, methodsRelations, packagesRelations, filesWeights, methodsWeights, packagesWeights, frame);
-                        break;
-                    default:
-                        System.out.println("Nothing to show!");
-                        break;
-                }
-            }
-        });
-        allContent.add(optionList, BorderLayout.PAGE_START);
+        JButton btn3 = new JButton("Historia 3");
+        btn3.addActionListener(e -> applet.createGraphX(packagesRelations, packagesWeights, frame));
+        panel.add(btn3,BorderLayout.LINE_END);
+
+        allContent.add(panel, BorderLayout.PAGE_START);
         allContent.add(applet,BorderLayout.CENTER);
 
         frame = new JFrame();
@@ -117,6 +74,37 @@ public class Main {
         frame.add(allContent);
         frame.setContentPane(allContent);
         frame.setVisible(true);
+        try {
+            XMLCreator xml = new XMLCreator();
+            xml.addElements(packagesRelations, packagesWeights);
+            XMLBuilder2 builder = xml.getExportedXML();
+            PrintWriter writer = new PrintWriter("package.xml");
+            Properties properties = xml.getProperties();
+            builder.toWriter(writer, properties);
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        try {
+            XMLCreator xml = new XMLCreator();
+            xml.addElements(filesRelations, filesWeights);
+            XMLBuilder2 builder = xml.getExportedXML();
+            PrintWriter writer = new PrintWriter("files.xml");
+            Properties properties = xml.getProperties();
+            builder.toWriter(writer, properties);
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        try {
+            XMLCreator xml = new XMLCreator();
+            xml.addElements(methodsRelations, methodsWeights);
+            XMLBuilder2 builder = xml.getExportedXML();
+            PrintWriter writer = new PrintWriter("methods.xml");
+            Properties properties = xml.getProperties();
+            builder.toWriter(writer, properties);
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+
     }
 
     public static Map<String, Map<String, Integer>> getMethodsRelations() {
