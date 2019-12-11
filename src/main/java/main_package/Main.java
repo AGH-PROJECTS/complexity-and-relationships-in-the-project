@@ -1,12 +1,12 @@
 package main_package;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -26,7 +26,7 @@ public class Main {
     private static Map<String, Integer> filesWeights;
     private static Map<String, Integer> methodsWeights;
     private static Map<String, Integer> packagesWeights;
-    private static String graphOption;
+    private static int comboControl = 0;
     public static void main(String[] args) {
         try {
             InformationGenerator informationGenerator = new InformationGenerator();
@@ -47,38 +47,35 @@ public class Main {
         JPanel allContent = new JPanel(new BorderLayout());
 
         JGraphXDraw applet = new JGraphXDraw();
-
-        JPanel panel = new JPanel(new FlowLayout());
-        panel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-
-        String[] optionStrings = { "Historia 1", "Historia 2", "Historia 3", "Historia 1 i 2", "Historia 1 i 3", "Historia 2 i 3", "Wszystkie historie" };
+        applet.setBackground(Color.DARK_GRAY);
+        String[] optionStrings = {"Graf zależności między plikami", "Graf relacji między funkcjami/metodami",
+                "Graf relacji między modułami logicznymi", "Graf 1 i 2", "Graf 1 i 3", "Graf 2 i 3", "Wszystkie grafy"};
 
         JComboBox optionList = new JComboBox(optionStrings);
-
-        graphOption = "Historia 1";
+        optionList.setSelectedIndex(-1);
         optionList.addItemListener(e -> {
             if(e.getStateChange() == ItemEvent.SELECTED){
-                graphOption = optionList.getSelectedItem().toString();
-                switch (graphOption){
-                    case "Historia 1":
+                comboControl = optionList.getSelectedIndex();
+                switch (comboControl){
+                    case 0:
                         applet.createGraphX(filesRelations, filesWeights, frame);
                         break;
-                    case "Historia 2":
+                    case 1:
                         applet.createGraphX(methodsRelations, methodsWeights, frame);
                         break;
-                    case "Historia 3":
+                    case 2:
                         applet.createGraphX(packagesRelations, packagesWeights, frame);
                         break;
-                    case "Historia 1 i 2":
+                    case 3:
                         applet.createGraphX(filesRelations, methodsRelations, filesWeights, methodsWeights, frame);
                         break;
-                    case "Historia 1 i 3":
+                    case 4:
                         applet.createGraphX(filesRelations, packagesRelations, filesWeights, packagesWeights, frame);
                         break;
-                    case "Historia 2 i 3":
+                    case 5:
                         applet.createGraphX(methodsRelations, packagesRelations, methodsWeights, packagesWeights, frame);
                         break;
-                    case "Wszystkie historie":
+                    case 6:
                         applet.createGraphX(filesRelations, methodsRelations, packagesRelations, filesWeights, methodsWeights, packagesWeights, frame);
                         break;
                     default:
@@ -89,7 +86,6 @@ public class Main {
         });
         allContent.add(optionList, BorderLayout.PAGE_START);
         allContent.add(applet,BorderLayout.CENTER);
-
         frame = new JFrame();
         frame.setTitle("Projekt - Inżynieria oprogramowania");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
