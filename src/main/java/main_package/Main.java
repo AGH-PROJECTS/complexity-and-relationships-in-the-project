@@ -1,21 +1,25 @@
 package main_package;
+
+import com.jamesmurty.utils.XMLBuilder2;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
-import javax.swing.*;
+import java.util.Map;
+import java.util.Properties;
 
-import com.jamesmurty.utils.XMLBuilder2;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import main_package.export.XMLCreator;
 import main_package.model.InformationGenerator;
 import main_package.model.JGraphXDraw;
-import main_package.export.XMLCreator;
 
 public class Main {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -27,11 +31,12 @@ public class Main {
     private static Map<String, Integer> methodsWeights;
     private static Map<String, Integer> packagesWeights;
     private static int comboControl = 0;
+
     public static void main(String[] args) {
         try {
             InformationGenerator informationGenerator = new InformationGenerator();
 
-            methodsRelations =  informationGenerator.getMethodsRelations();
+            methodsRelations = informationGenerator.getMethodsRelations();
             methodsWeights = informationGenerator.getMethodsWeights();
 
             packagesRelations = informationGenerator.getPackagesRelations();
@@ -54,9 +59,9 @@ public class Main {
         JComboBox optionList = new JComboBox(optionStrings);
         optionList.setSelectedIndex(-1);
         optionList.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED){
+            if (e.getStateChange() == ItemEvent.SELECTED) {
                 comboControl = optionList.getSelectedIndex();
-                switch (comboControl){
+                switch (comboControl) {
                     case 0:
                         applet.createGraphX(filesRelations, filesWeights, frame);
                         break;
@@ -85,7 +90,7 @@ public class Main {
             }
         });
         allContent.add(optionList, BorderLayout.PAGE_START);
-        allContent.add(applet,BorderLayout.CENTER);
+        allContent.add(applet, BorderLayout.CENTER);
         frame = new JFrame();
         frame.setTitle("Projekt - Inżynieria oprogramowania");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -101,7 +106,7 @@ public class Main {
             PrintWriter writer = new PrintWriter("package.xml");
             Properties properties = xml.getProperties();
             builder.toWriter(writer, properties);
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         try {
@@ -111,7 +116,7 @@ public class Main {
             PrintWriter writer = new PrintWriter("files.xml");
             Properties properties = xml.getProperties();
             builder.toWriter(writer, properties);
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         try {
@@ -121,13 +126,9 @@ public class Main {
             PrintWriter writer = new PrintWriter("methods.xml");
             Properties properties = xml.getProperties();
             builder.toWriter(writer, properties);
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-    }
-
-    public static Map<String, Map<String, Integer>> getMethodsRelations() {
-        return methodsRelations;
     }
 }

@@ -12,14 +12,18 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.github.javaparser.symbolsolver.utils.SymbolSolverCollectionStrategy;
-import com.google.common.graph.ImmutableNetwork;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
-
-import main_package.Main;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class InformationGenerator {
     private static final String MAIN_PATH = "src/main/java";
@@ -33,6 +37,7 @@ public class InformationGenerator {
     private Map<String, Integer> packagesWeights;
     private Map<String, Integer> methodsWeights;
     private Map<String, Integer> filesWeights;
+    private Map<String, Map<String, Integer>> methodsRelations;
 
     public InformationGenerator() throws IOException {
         this.packagesWeights = new HashMap<>();
@@ -48,8 +53,10 @@ public class InformationGenerator {
         String path = System.getProperty("java.class.path");
         String[] p;
         p = path.split(";");
-        for(int i=1;i<p.length;i++) {
-            combinedTypeSolver.add(new JarTypeSolver(p[i]));
+        for (int i = 1; i < p.length; i++) {
+            if (p[i].endsWith(".jar")) {
+                combinedTypeSolver.add(new JarTypeSolver(p[i]));
+            }
         }
 
         this.javaSymbolSolver = new JavaSymbolSolver(combinedTypeSolver);
@@ -59,11 +66,11 @@ public class InformationGenerator {
         classes = new HashSet<>();
 
         Arrays.stream(mainDir.listFiles()).forEach(file -> {
-            checkDirectory(file,classes);
+            checkDirectory(file, classes);
         });
 
         classesName = new ArrayList<>();
-        classes.forEach(file-> classesName.add(file.getName().substring(0,file.getName().lastIndexOf(".java"))));
+        classes.forEach(file -> classesName.add(file.getName().substring(0, file.getName().lastIndexOf(".java"))));
     }
 
     public Map<String, Map<String, Integer>> getPackagesRelations() {
@@ -76,12 +83,12 @@ public class InformationGenerator {
                 CompilationUnit finalCu = cu;
                 cu.findAll(MethodDeclaration.class)
                         .stream()
-                        .forEach(mcd-> {
+                        .forEach(mcd -> {
                             PackageNameSearching packageNameSearching = new PackageNameSearching();
                             mcd.accept(packageNameSearching, null);
 
-                            if(packageNameSearching.getMapSize() > 0) {
-                                allPackagesInformationMap.put(finalCu.getPackageDeclaration().get().getName().asString(),packageNameSearching.getPackageMap());
+                            if (packageNameSearching.getMapSize() > 0) {
+                                allPackagesInformationMap.put(finalCu.getPackageDeclaration().get().getName().asString(), packageNameSearching.getPackageMap());
                             }
                         });
             } catch (FileNotFoundException e) {
@@ -89,7 +96,7 @@ public class InformationGenerator {
             }
         });
         addInformation(allPackagesInformationMap, packagesWeights);
-        packagesWeights.put("main_package",1);
+        packagesWeights.put("main_package", 1);
         return allPackagesInformationMap;
     }
 
@@ -102,12 +109,12 @@ public class InformationGenerator {
                 cu = StaticJavaParser.parse(file);
                 cu.findAll(MethodDeclaration.class)
                         .stream()
-                        .forEach(mcd-> {
+                        .forEach(mcd -> {
                             MethodNameSearching methodNameSearching = new MethodNameSearching();
                             mcd.accept(methodNameSearching, null);
 
-                            if(methodNameSearching.getMapSize() > 0) {
-                                allMethodsInformationMap.put(mcd.resolve().getName(),methodNameSearching.getMethodMap());
+                            if (methodNameSearching.getMapSize() > 0) {
+                                allMethodsInformationMap.put(mcd.resolve().getName(), methodNameSearching.getMethodMap());
                             }
 
                         });
@@ -116,20 +123,21 @@ public class InformationGenerator {
             }
         });
         addInformation(allMethodsInformationMap, methodsWeights);
-        methodsWeights.put("main",1);
+        methodsWeights.put("main", 1);
+        this.methodsRelations = allMethodsInformationMap;
         return allMethodsInformationMap;
     }
 
     public Map<String, Map<String, Integer>> getFilesRelations() {
-        Map<String, Map<String, Integer>> methodsRelations = Main.getMethodsRelations();
+        Map<String, Map<String, Integer>> methodsRelations = this.methodsRelations;
         Map<String, Map<String, Integer>> filesRelations = new HashMap<>();
         Map<String, String> filesMethods = new HashMap<>();
         List<Integer> weights = new ArrayList<>();
 
         classes.forEach(file -> {
-            String fileName = file.getName().substring(0,file.getName().lastIndexOf(".java"));
-            filesWeights.put(fileName, (int)file.length());
-            weights.add((int)file.length());
+            String fileName = file.getName().substring(0, file.getName().lastIndexOf(".java"));
+            filesWeights.put(fileName, (int) file.length());
+            weights.add((int) file.length());
             CompilationUnit cu = null;
             try {
                 cu = StaticJavaParser.parse(file);
@@ -137,7 +145,7 @@ public class InformationGenerator {
 
                 cu.findAll(MethodDeclaration.class)
                         .stream()
-                        .forEach(mcd-> {
+                        .forEach(mcd -> {
 
                             filesMethods.put(mcd.resolve().getName(), fileName);
                         });
@@ -148,57 +156,57 @@ public class InformationGenerator {
         });
 
 
-        for(String i: classesName){
+        for (String i : classesName) {
             Map<String, Integer> usageMap = new HashMap<>();
             filesRelations.put(i, usageMap);
         }
 
         //Set default relation value to 0
         Set<Map.Entry<String, Map<String, Integer>>> filesEntrySet = filesRelations.entrySet();
-        for(Map.Entry<String, Map<String, Integer>> entry: filesEntrySet){
+        for (Map.Entry<String, Map<String, Integer>> entry : filesEntrySet) {
             Map<String, Integer> usageMap = entry.getValue();
-            for(String i: classesName){
+            for (String i : classesName) {
                 usageMap.put(i, 0);
             }
         }
 
         Set<Map.Entry<String, Map<String, Integer>>> methodsEntrySet = methodsRelations.entrySet();
-        for(Map.Entry<String, Map<String, Integer>> entry: methodsEntrySet){
+        for (Map.Entry<String, Map<String, Integer>> entry : methodsEntrySet) {
 
             Set<Map.Entry<String, Integer>> littleEntrySet = entry.getValue().entrySet();
-            for(Map.Entry<String, Integer> littleEntry: littleEntrySet) {
+            for (Map.Entry<String, Integer> littleEntry : littleEntrySet) {
 
                 String fileName = filesMethods.get(entry.getKey());
                 Map<String, Integer> usageMap = filesRelations.get(fileName);
                 String methodFileName = filesMethods.get(littleEntry.getKey());
                 int valueToPut = littleEntry.getValue() + usageMap.get(methodFileName);
-                if(!fileName.equals(methodFileName)){
+                if (!fileName.equals(methodFileName)) {
                     usageMap.put(methodFileName, valueToPut);
                 }
                 filesRelations.put(fileName, usageMap);
             }
         }
         //Normalize filesWeights
-        double max = (double)Collections.max(weights);
-        double min = (double)Collections.min(weights);
+        double max = (double) Collections.max(weights);
+        double min = (double) Collections.min(weights);
         Set<Map.Entry<String, Integer>> weightsEntrySet = filesWeights.entrySet();
-        for (Map.Entry<String, Integer> entry: weightsEntrySet){
-            double val = ((double)entry.getValue() - min)/(max - min);
-            val = (val*7 + 1);
+        for (Map.Entry<String, Integer> entry : weightsEntrySet) {
+            double val = ((double) entry.getValue() - min) / (max - min);
+            val = (val * 7 + 1);
             val *= 10;
             val = Math.round(val);
             val /= 10;
-            filesWeights.put(entry.getKey(), (int)val);
+            filesWeights.put(entry.getKey(), (int) val);
         }
 
         return filesRelations;
     }
 
     private void checkDirectory(File file, Set<File> list) {
-        if(file.isDirectory()) {
+        if (file.isDirectory()) {
             Arrays.stream(file.listFiles()).forEach(cFile -> {
-                if(cFile.isDirectory()) {
-                    checkDirectory(cFile,list);
+                if (cFile.isDirectory()) {
+                    checkDirectory(cFile, list);
                 } else {
                     list.add(cFile);
                 }
@@ -213,15 +221,15 @@ public class InformationGenerator {
 
         @Override
         public void visit(MethodCallExpr n, Void arg) {
-            super.visit(n,arg);
+            super.visit(n, arg);
             String methodQualifiedName = n.resolve().getQualifiedName();
 
-            if(methodQualifiedName.contains("main_package")){
+            if (methodQualifiedName.contains("main_package")) {
                 String packageName = n.resolve().getPackageName();
-                if(packageMap.containsKey(packageName)) {
-                    packageMap.put(packageName,packageMap.get(packageName) + 1);
+                if (packageMap.containsKey(packageName)) {
+                    packageMap.put(packageName, packageMap.get(packageName) + 1);
                 } else {
-                    packageMap.put(packageName,1);
+                    packageMap.put(packageName, 1);
                 }
             }
         }
@@ -240,15 +248,15 @@ public class InformationGenerator {
 
         @Override
         public void visit(MethodCallExpr n, Void arg) {
-            super.visit(n,arg);
+            super.visit(n, arg);
             String methodQualifiedName = n.resolve().getQualifiedName();
 
-            if(methodQualifiedName.contains("main_package")){
+            if (methodQualifiedName.contains("main_package")) {
                 String methodName = n.resolve().getName();
-                if(methodMap.containsKey(methodName)) {
-                    methodMap.put(methodName,methodMap.get(methodName) + 1);
+                if (methodMap.containsKey(methodName)) {
+                    methodMap.put(methodName, methodMap.get(methodName) + 1);
                 } else {
-                    methodMap.put(methodName,1);
+                    methodMap.put(methodName, 1);
                 }
             }
         }
@@ -263,15 +271,15 @@ public class InformationGenerator {
     }
 
     private void addInformation(Map<String, Map<String, Integer>> mainMap, Map<String, Integer> valueMap) {
-        for(Map.Entry<String, Map<String, Integer>> entry : mainMap.entrySet()) {
+        for (Map.Entry<String, Map<String, Integer>> entry : mainMap.entrySet()) {
             Map<String, Integer> mapValue = entry.getValue();
 
-            for(Map.Entry<String,Integer> entryMap : mapValue.entrySet()) {
+            for (Map.Entry<String, Integer> entryMap : mapValue.entrySet()) {
                 String name = entryMap.getKey();
-                if(valueMap.containsKey(name)) {
-                    valueMap.put(name,valueMap.get(name)+ 1);
+                if (valueMap.containsKey(name)) {
+                    valueMap.put(name, valueMap.get(name) + 1);
                 } else {
-                    valueMap.put(name,1);
+                    valueMap.put(name, 1);
                 }
             }
         }
