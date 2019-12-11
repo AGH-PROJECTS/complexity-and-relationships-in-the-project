@@ -99,6 +99,7 @@ public class Main {
         frame.add(allContent);
         frame.setContentPane(allContent);
         frame.setVisible(true);
+
         try {
             XMLCreator xml = new XMLCreator();
             xml.addElements(packagesRelations, packagesWeights);

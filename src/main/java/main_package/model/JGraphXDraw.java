@@ -24,6 +24,10 @@ public class JGraphXDraw extends JApplet {
     }
 
     public void createGraphX(Map<String, Map<String, Integer>> projectStructure, Map<String, Integer> projectInfo, JFrame frame) {
+        if(projectStructure == null || projectInfo == null){
+            throw new NullPointerException();
+        }
+
         newGraph.removeCells(newGraph.getChildVertices(newGraph.getDefaultParent()));
 
         newGraph.getModel().beginUpdate();
@@ -43,6 +47,10 @@ public class JGraphXDraw extends JApplet {
         SwingUtilities.updateComponentTreeUI(frame);
     }
     public void createGraphX(Map<String, Map<String, Integer>> projectStructure1, Map<String, Map<String, Integer>> projectStructure2, Map<String, Integer> projectInfo1, Map<String, Integer> projectInfo2, JFrame frame) {
+        if(projectStructure1 == null || projectInfo1 == null || projectStructure2 == null || projectInfo2 == null){
+            throw new NullPointerException();
+        }
+
         newGraph.removeCells(newGraph.getChildVertices(newGraph.getDefaultParent()));
 
         newGraph.getModel().beginUpdate();
@@ -69,6 +77,10 @@ public class JGraphXDraw extends JApplet {
         SwingUtilities.updateComponentTreeUI(frame);
     }
     public void createGraphX(Map<String, Map<String, Integer>> projectStructure1, Map<String, Map<String, Integer>> projectStructure2, Map<String, Map<String, Integer>> projectStructure3, Map<String, Integer> projectInfo1, Map<String, Integer> projectInfo2, Map<String, Integer> projectInfo3, JFrame frame) {
+        if(projectStructure1 == null || projectInfo1 == null || projectStructure2 == null || projectInfo2 == null || projectStructure3 == null || projectInfo3 == null){
+            throw new NullPointerException();
+        }
+
         newGraph.removeCells(newGraph.getChildVertices(newGraph.getDefaultParent()));
 
         newGraph.getModel().beginUpdate();

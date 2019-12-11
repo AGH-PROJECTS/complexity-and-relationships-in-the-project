@@ -1,8 +1,5 @@
-import org.apache.commons.lang3.ObjectUtils;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,20 +12,12 @@ public class InformationGeneratorTest {
     private static InformationGenerator gen;
     private static Map<String, Map<String, Integer>> filesRelations;
     private static Map<String, Map<String, Integer>> methodsRelations;
-    private static Map<String, Map<String, Integer>> packagesRelations;
-    private static Map<String, Integer> filesWeights;
-    private static Map<String, Integer> methodsWeights;
-    private static Map<String, Integer> packagesWeights;
 
     @BeforeClass
     public static void init() throws IOException {
         gen = new InformationGenerator();
-        methodsRelations =  gen.getMethodsRelations();
-        methodsWeights = gen.getMethodsWeights();
-        packagesRelations = gen.getPackagesRelations();
-        packagesWeights = gen.getPackagesWeights();
+        methodsRelations = gen.getMethodsRelations();
         filesRelations = gen.getFilesRelations();
-        filesWeights = gen.getFilesWeights();
     }
 
     @Test
@@ -47,17 +36,17 @@ public class InformationGeneratorTest {
 
     @Test
     public void getMethodsWeights_NotNull() throws IOException {
-        Assert.assertNotNull(methodsWeights);
+        Assert.assertNotNull(gen.getMethodsWeights());
     }
 
     @Test
     public void getPackagesRelations_NotNull() throws IOException {
-        Assert.assertNotNull(packagesRelations);
+        Assert.assertNotNull(gen.getPackagesRelations());
     }
 
     @Test
     public void getPackagesWeights_NotNull() throws IOException {
-        Assert.assertNotNull(packagesWeights);
+        Assert.assertNotNull(gen.getPackagesWeights());
     }
 
     @Test
@@ -67,7 +56,7 @@ public class InformationGeneratorTest {
 
     @Test
     public void getFilesWeights_NotNull() throws IOException {
-        Assert.assertNotNull(filesWeights);
+        Assert.assertNotNull(gen.getFilesWeights());
     }
 
 }
