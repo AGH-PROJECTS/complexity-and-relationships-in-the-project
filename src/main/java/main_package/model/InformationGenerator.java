@@ -11,27 +11,16 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSol
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import com.github.javaparser.symbolsolver.utils.SymbolSolverCollectionStrategy;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static main_package.tools.Constants.MAIN_PATH;
 
 public class InformationGenerator {
-    private static final String MAIN_PATH = "src/main/java";
-    private CombinedTypeSolver combinedTypeSolver;
-    private TypeSolver typeSolver;
-    private TypeSolver reflectionTypeSolver;
-    private JavaSymbolSolver javaSymbolSolver;
-    private File mainDir;
     private Set<File> classes;
     private List<String> classesName;
     private Map<String, Integer> packagesWeights;
@@ -39,43 +28,88 @@ public class InformationGenerator {
     private Map<String, Integer> filesWeights;
     private Map<String, Map<String, Integer>> methodsRelations;
 
-    public InformationGenerator() throws IOException {
+    public InformationGenerator() {
         this.packagesWeights = new HashMap<>();
         this.methodsWeights = new HashMap<>();
         this.filesWeights = new HashMap<>();
-        this.combinedTypeSolver = new CombinedTypeSolver();
-        this.typeSolver = new JavaParserTypeSolver(MAIN_PATH);
-        this.reflectionTypeSolver = new ReflectionTypeSolver();
 
-        combinedTypeSolver.add(reflectionTypeSolver);
-        combinedTypeSolver.add(typeSolver);
-        SymbolSolverCollectionStrategy symbolSolverCollectionStrategy = new SymbolSolverCollectionStrategy();
-        String path = System.getProperty("java.class.path");
-        String[] p;
-        p = path.split(";");
-        for (int i = 1; i < p.length; i++) {
-            if (p[i].endsWith(".jar")) {
-                combinedTypeSolver.add(new JarTypeSolver(p[i]));
-            }
-        }
+        specifySymbolsSolver();
+        this.classes = getClasses();
+        this.classesName = getClassesName(classes);
 
-        this.javaSymbolSolver = new JavaSymbolSolver(combinedTypeSolver);
-        StaticJavaParser.getConfiguration().setSymbolResolver(javaSymbolSolver);
-
-        mainDir = new File(MAIN_PATH);
-        classes = new HashSet<>();
-
-        Arrays.stream(mainDir.listFiles()).forEach(file -> {
-            checkDirectory(file, classes);
-        });
-
-        classesName = new ArrayList<>();
-        classes.forEach(file -> classesName.add(file.getName().substring(0, file.getName().lastIndexOf(".java"))));
     }
 
+    //konfiguracja typeSolvera
+    private void specifySymbolsSolver() {
+        TypeSolver typeSolver = new JavaParserTypeSolver(MAIN_PATH);
+        TypeSolver reflectionTypeSolver = new ReflectionTypeSolver();
+        JavaSymbolSolver javaSymbolSolver;
+        CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
+        combinedTypeSolver.add(reflectionTypeSolver);
+        combinedTypeSolver.add(typeSolver);
+
+        List<String> listJars = getJarsToResolver();
+
+        listJars.forEach(jar -> {
+            try {
+                combinedTypeSolver.add(new JarTypeSolver(jar));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        javaSymbolSolver = new JavaSymbolSolver(combinedTypeSolver);
+        StaticJavaParser.getConfiguration().setSymbolResolver(javaSymbolSolver);
+    }
+
+    //szukam jary bibliotek, itp ktore wystepuja w projekcie
+    private List<String> getJarsToResolver() {
+        List<String > listJars;
+        String path = System.getProperty("java.class.path");
+        listJars = Arrays.asList(path.split(";"));
+        listJars = listJars.stream().filter(jar -> jar.endsWith(".jar")).collect(Collectors.toList());
+        return listJars;
+    }
+
+    //set klas
+    private Set<File> getClasses() {
+        Set<File> searchedClasses = new HashSet<>();
+        File mainDir = new File(MAIN_PATH); // tutaj szukam plikow naszego projektu
+        Arrays.stream(Objects.requireNonNull(mainDir.listFiles())).forEach(file -> {
+            checkDirectory(file, searchedClasses);
+        }); //tworze liste klas
+        return searchedClasses;
+    }
+
+    private List<String> getClassesName(Set<File> classesToSearch) {
+        List<String> searchedClassesName = new ArrayList<>();
+        classesToSearch.forEach(file -> searchedClassesName.add(file.getName().substring(0, file.getName().lastIndexOf(".java"))));
+        //wybieram z listy klas tylko nazwy bez .java
+        return searchedClassesName;
+    }
+
+    //sprawdzam co zawiera folder, jesli inny folder to przechodze do niego
+    private void checkDirectory(File file, Set<File> fileSet) {
+        if (file.isDirectory()) {
+            Arrays.stream(file.listFiles()).forEach(cFile -> {
+                if (cFile.isDirectory()) {
+                    checkDirectory(cFile, fileSet);
+                } else {
+                    fileSet.add(cFile);
+                }
+            });
+        } else {
+            fileSet.add(file);
+        }
+    }
+
+
+
+
+
+//to do zmiany
     public Map<String, Map<String, Integer>> getPackagesRelations() {
         Map<String, Map<String, Integer>> allPackagesInformationMap = new HashMap<>();
-
         classes.forEach(file -> {
             CompilationUnit cu = null;
             try {
@@ -88,8 +122,12 @@ public class InformationGenerator {
                             mcd.accept(packageNameSearching, null);
 
                             if (packageNameSearching.getMapSize() > 0) {
+                                System.out.println(mcd.resolve().getName() + " metoda wywolujaca");
+                                //allPackagesInformationMap.put(mcd.resolve().getName(), packageNameSearching.getPackageMap());
                                 allPackagesInformationMap.put(finalCu.getPackageDeclaration().get().getName().asString(), packageNameSearching.getPackageMap());
+                                System.out.println();
                             }
+
                         });
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -202,20 +240,6 @@ public class InformationGenerator {
         return filesRelations;
     }
 
-    private void checkDirectory(File file, Set<File> list) {
-        if (file.isDirectory()) {
-            Arrays.stream(file.listFiles()).forEach(cFile -> {
-                if (cFile.isDirectory()) {
-                    checkDirectory(cFile, list);
-                } else {
-                    list.add(cFile);
-                }
-            });
-        } else {
-            list.add(file);
-        }
-    }
-
     private static class PackageNameSearching extends VoidVisitorAdapter<Void> {
         private Map<String, Integer> packageMap = new HashMap<>();
 
@@ -225,7 +249,8 @@ public class InformationGenerator {
             String methodQualifiedName = n.resolve().getQualifiedName();
 
             if (methodQualifiedName.contains("main_package")) {
-                String packageName = n.resolve().getPackageName();
+                String packageName = n.resolve().getName();
+                System.out.println(n.getName().asString());
                 if (packageMap.containsKey(packageName)) {
                     packageMap.put(packageName, packageMap.get(packageName) + 1);
                 } else {
