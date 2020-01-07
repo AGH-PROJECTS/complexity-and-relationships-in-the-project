@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import main_package.export.XMLCreator;
 import main_package.model.InformationGenerator;
 import main_package.model.JGraphXDraw;
+import main_package.tools.Constants;
 
 public class Main {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -33,21 +34,17 @@ public class Main {
     private static int comboControl = 0;
 
     public static void main(String[] args) {
-        try {
-            InformationGenerator informationGenerator = new InformationGenerator();
+        InformationGenerator informationGenerator = new InformationGenerator();
+        Constants constants = new Constants();
+        informationGenerator.test();
+        /*methodsRelations = informationGenerator.getMethodsRelations();
+        methodsWeights = informationGenerator.getMethodsWeights();
 
-            methodsRelations = informationGenerator.getMethodsRelations();
-            methodsWeights = informationGenerator.getMethodsWeights();
+        packagesRelations = informationGenerator.getPackagesRelations();
+        packagesWeights = informationGenerator.getPackagesWeights();
 
-            packagesRelations = informationGenerator.getPackagesRelations();
-            packagesWeights = informationGenerator.getPackagesWeights();
-
-            filesRelations = informationGenerator.getFilesRelations();
-            filesWeights = informationGenerator.getFilesWeights();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        filesRelations = informationGenerator.getFilesRelations();
+        filesWeights = informationGenerator.getFilesWeights();
 
         JPanel allContent = new JPanel(new BorderLayout());
 
@@ -130,6 +127,6 @@ public class Main {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
+*/
     }
 }

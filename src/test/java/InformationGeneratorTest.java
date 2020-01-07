@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import main_package.model.InformationGenerator;
 
@@ -11,7 +12,7 @@ public class InformationGeneratorTest {
 
     private static InformationGenerator gen;
     private static Map<String, Map<String, Integer>> filesRelations;
-    private static Map<String, Map<String, Integer>> methodsRelations;
+    private static Map<String, Map<String, AtomicInteger>> methodsRelations;
 
     @BeforeClass
     public static void init() throws IOException {
@@ -22,11 +23,7 @@ public class InformationGeneratorTest {
 
     @Test
     public void InformationGenerator_NotThrowIOException() {
-        try {
-            gen = new InformationGenerator();
-        } catch (IOException e) {
-            Assert.fail(e.getMessage());
-        }
+        gen = new InformationGenerator();
     }
 
     @Test
