@@ -17,13 +17,13 @@ public class JGraphXDrawTest {
     private static Map<String, Map<String, Integer>> filesRelations;
     private static Map<String, Map<String, AtomicInteger>> methodsRelations;
 
-    @BeforeClass
+/*    @BeforeClass
     public static void init() throws IOException {
         applet = new JGraphXDraw();
         gen = new InformationGenerator();
         methodsRelations = gen.getMethodsRelations();
         filesRelations = gen.getFilesRelations();
-    }
+    }*/
 
     @Test
     public void JGraphXDrawTest_NotThrowHeadlessException () {

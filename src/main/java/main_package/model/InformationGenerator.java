@@ -43,8 +43,10 @@ public class InformationGenerator {
         this.classes = getClasses();
         this.classesName = getClassesName(classes);
         this.packagesName = getPackagesName(classes);
+
         getMethodsRelations();
         getPackagesRelations();
+        getFilesRelations();
     }
 
     public void test() {
@@ -133,11 +135,7 @@ public class InformationGenerator {
         }
     }
 
-
-
-
-
-//to do zmiany
+    //relacje miedzy package
     public Map<String, Map<String, AtomicInteger>> getPackagesRelations() {
         Map<String, Map<String, AtomicInteger>> packagesRelationsMap = new HashMap<>();
         classes.forEach(file -> {
@@ -149,19 +147,21 @@ public class InformationGenerator {
                 });
 
                 if (packageNameSearching.getMapSize() > 0) {
+                    System.out.println(methodDeclaration.resolve().getPackageName() + " "+ methodDeclaration.getName() + " wywulujaca");
                     packagesRelationsMap.put(cu.getPackageDeclaration().get().getName().asString(), packageNameSearching.getPackageMap());
                 }
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         });
 
-        //addInformation(allRelations, packagesWeights);
-        //packagesWeights.put("main_package", 1);
+        addSizeInformation(packagesRelationsMap, packagesWeights);
 
         return packagesRelationsMap;
     }
 
+    //relacje miedzy metodami
     public Map<String, Map<String, AtomicInteger>> getMethodsRelations() {
         Map<String, Map<String, AtomicInteger>> methodsRelationsMap = new HashMap<>();
 
@@ -181,84 +181,34 @@ public class InformationGenerator {
             }
         });
 
-        //addInformation(methodsRelationsMap, methodsWeights);
-       // methodsWeights.put("main", 1);
-       // this.methodsRelations = allMethodsInformationMap;
+        addSizeInformation(methodsRelationsMap, methodsWeights);
         return methodsRelationsMap;
     }
 
-    public Map<String, Map<String, Integer>> getFilesRelations() {
-        Map<String, Map<String, Integer>> methodsRelations = this.methodsRelations;
-        Map<String, Map<String, Integer>> filesRelations = new HashMap<>();
-        Map<String, String> filesMethods = new HashMap<>();
-        List<Integer> weights = new ArrayList<>();
+    //relacje miedzy plikami
+    public Map<String, Map<String, AtomicInteger>> getFilesRelations() {
+        Map<String, Map<String, AtomicInteger>> filesRelationsMap = new HashMap<>();
 
         classes.forEach(file -> {
-            String fileName = file.getName().substring(0, file.getName().lastIndexOf(".java"));
-            filesWeights.put(fileName, (int) file.length());
-            weights.add((int) file.length());
-            CompilationUnit cu = null;
             try {
-                cu = StaticJavaParser.parse(file);
-                CompilationUnit finalCu = cu;
+                CompilationUnit cu = StaticJavaParser.parse(file);
+                String fileName = file.getName();
+                cu.findAll(MethodDeclaration.class).forEach(mcd -> {
+                    FileNameSearching fileNameSearching = new FileNameSearching(packagesName);
+                    mcd.accept(fileNameSearching, null);
+                    if (fileNameSearching.getMapSize() > 0) {
+                        filesRelationsMap.put(fileName, fileNameSearching.getMethodMap());
+                    }
+                });
 
-                cu.findAll(MethodDeclaration.class)
-                        .stream()
-                        .forEach(mcd -> {
-
-                            filesMethods.put(mcd.resolve().getName(), fileName);
-                        });
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
 
         });
 
-
-        for (String i : classesName) {
-            Map<String, Integer> usageMap = new HashMap<>();
-            filesRelations.put(i, usageMap);
-        }
-
-        //Set default relation value to 0
-        Set<Map.Entry<String, Map<String, Integer>>> filesEntrySet = filesRelations.entrySet();
-        for (Map.Entry<String, Map<String, Integer>> entry : filesEntrySet) {
-            Map<String, Integer> usageMap = entry.getValue();
-            for (String i : classesName) {
-                usageMap.put(i, 0);
-            }
-        }
-
-        Set<Map.Entry<String, Map<String, Integer>>> methodsEntrySet = methodsRelations.entrySet();
-        for (Map.Entry<String, Map<String, Integer>> entry : methodsEntrySet) {
-
-            Set<Map.Entry<String, Integer>> littleEntrySet = entry.getValue().entrySet();
-            for (Map.Entry<String, Integer> littleEntry : littleEntrySet) {
-
-                String fileName = filesMethods.get(entry.getKey());
-                Map<String, Integer> usageMap = filesRelations.get(fileName);
-                String methodFileName = filesMethods.get(littleEntry.getKey());
-                int valueToPut = littleEntry.getValue() + usageMap.get(methodFileName);
-                if (!fileName.equals(methodFileName)) {
-                    usageMap.put(methodFileName, valueToPut);
-                }
-                filesRelations.put(fileName, usageMap);
-            }
-        }
-        //Normalize filesWeights
-        double max = (double) Collections.max(weights);
-        double min = (double) Collections.min(weights);
-        Set<Map.Entry<String, Integer>> weightsEntrySet = filesWeights.entrySet();
-        for (Map.Entry<String, Integer> entry : weightsEntrySet) {
-            double val = ((double) entry.getValue() - min) / (max - min);
-            val = (val * 7 + 1);
-            val *= 10;
-            val = Math.round(val);
-            val /= 10;
-            filesWeights.put(entry.getKey(), (int) val);
-        }
-
-        return filesRelations;
+        addSizeInformation(filesRelationsMap,filesWeights);
+        return filesRelationsMap;
     }
 
     private static class PackageNameSearching extends VoidVisitorAdapter<Void> {
@@ -272,13 +222,13 @@ public class InformationGenerator {
         public void visit(MethodCallExpr n, Void arg) {
             super.visit(n, arg);
             String packagePath = n.resolve().getPackageName();
-            String packageName = n.resolve().getName();
             packagesName.stream()
                     .filter(pN -> pN.equals(packagePath))
                     .forEach(pN ->
                     {
-                        packageMap.putIfAbsent(packageName,new AtomicInteger(0));
-                        packageMap.get(packageName).incrementAndGet();
+                        System.out.println(packagePath+ " " + n.resolve().getClassName() + " " + n.getName().asString() + " wywolywana");
+                        packageMap.putIfAbsent(packagePath,new AtomicInteger(0));
+                        packageMap.get(packagePath).incrementAndGet();
                     }
             );
         }
@@ -307,6 +257,7 @@ public class InformationGenerator {
                     .filter(mN -> mN.equals(packagePath))
                     .forEach(mN ->
                     {
+                        //System.out.println(n.resolve().getClassName());
                         methodMap.putIfAbsent(methodName,new AtomicInteger(0));
                         methodMap.get(methodName).incrementAndGet();
                     });
@@ -321,11 +272,42 @@ public class InformationGenerator {
         }
     }
 
-    private void addInformation(Map<String, Map<String, Integer>> mainMap, Map<String, Integer> valueMap) {
-        for (Map.Entry<String, Map<String, Integer>> entry : mainMap.entrySet()) {
-            Map<String, Integer> mapValue = entry.getValue();
+    private static class FileNameSearching extends VoidVisitorAdapter<Void> {
+        private Map<String, AtomicInteger> methodMap = new HashMap<String, AtomicInteger>();
+        private Set<String > packagesName;
 
-            for (Map.Entry<String, Integer> entryMap : mapValue.entrySet()) {
+        FileNameSearching(Set<String > packagesName ) {
+            this.packagesName = packagesName;
+        }
+        @Override
+        public void visit(MethodCallExpr n, Void arg) {
+            super.visit(n, arg);
+            String packagePath = n.resolve().getPackageName();
+            String fileName = n.resolve().getClassName() + ".java";
+            packagesName.stream()
+                    .filter(mN -> mN.equals(packagePath))
+                    .forEach(mN ->
+                    {
+                        methodMap.putIfAbsent(fileName,new AtomicInteger(0));
+                        methodMap.get(fileName).incrementAndGet();
+                    });
+        }
+
+        private Map<String, AtomicInteger> getMethodMap() {
+            return methodMap;
+        }
+
+        private int getMapSize() {
+            return methodMap.size();
+        }
+    }
+
+
+    private void addSizeInformation(Map<String, Map<String, AtomicInteger>> mainMap, Map<String, Integer> valueMap) {
+        for (Map.Entry<String, Map<String, AtomicInteger>> entry : mainMap.entrySet()) {
+            Map<String, AtomicInteger> mapValue = entry.getValue();
+
+            for (Map.Entry<String, AtomicInteger> entryMap : mapValue.entrySet()) {
                 String name = entryMap.getKey();
                 if (valueMap.containsKey(name)) {
                     valueMap.put(name, valueMap.get(name) + 1);
