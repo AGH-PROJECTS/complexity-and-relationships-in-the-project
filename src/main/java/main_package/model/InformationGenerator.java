@@ -40,19 +40,26 @@ public class InformationGenerator {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.classes = getClasses();
-        this.classesName = getClassesName(classes);
-        this.packagesName = getPackagesName(classes);
+        this.classes = searchClasses();
+        this.classesName = searchClassesName(classes);
+        this.packagesName = searchPackagesName(classes);
 
-        getMethodsRelations();
-        getPackagesRelations();
-        getFilesRelations();
+        //getMethodsRelations();
+        //getPackagesRelations();
+        //getFilesRelations();
+        //getMethodsFilesRelations();
     }
 
     public void test() {
         System.out.println("Test");
     }
 
+    public void test2() {
+        System.out.println("Test");
+    }
+    public void test3() {
+        System.out.println("Test");
+    }
     //konfiguracja typeSolvera
     private void specifySymbolsSolver() throws IOException {
         TypeSolver typeSolver = new JavaParserTypeSolver(MAIN_PATH);
@@ -86,7 +93,7 @@ public class InformationGenerator {
     }
 
     //set klas
-    private Set<File> getClasses() {
+    private Set<File> searchClasses() {
         Set<File> searchedClasses = new HashSet<>();
         File mainDir = new File(MAIN_PATH); // tutaj szukam plikow naszego projektu
         Arrays.stream(mainDir.listFiles()).forEach(file -> {
@@ -95,14 +102,14 @@ public class InformationGenerator {
         return searchedClasses;
     }
 
-    private List<String> getClassesName(Set<File> classesToSearch) {
+    private List<String> searchClassesName(Set<File> classesToSearch) {
         List<String> searchedClassesName = new ArrayList<>();
         classesToSearch.forEach(file -> searchedClassesName.add(file.getName().substring(0, file.getName().lastIndexOf(".java"))));
         //wybieram z listy klas tylko nazwy bez .java
         return searchedClassesName;
     }
 
-    private Set<String> getPackagesName(Set<File> classesToSearch) {
+    private Set<String> searchPackagesName(Set<File> classesToSearch) {
         Set<String> packagesName = new HashSet<>();
 
         classesToSearch.forEach(
@@ -137,25 +144,37 @@ public class InformationGenerator {
 
     //relacje miedzy package
     public Map<String, Map<String, AtomicInteger>> getPackagesRelations() {
-        Map<String, Map<String, AtomicInteger>> packagesRelationsMap = new HashMap<>();
+        Map<String, Map<String, AtomicInteger>> packagesRelationsMap = new HashMap<>(); //mapa relacji miedzy paczkami
+        List<Map<String, Map<String, AtomicInteger>>> packagesCalledMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczka a metodami ktore sa wolane z innej metody
+        List<Map<String, Map<String, AtomicInteger>>> packagesCallingMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczkami a metodami ktore wolaja metody z innych paczek
         classes.forEach(file -> {
             try {
                 CompilationUnit cu = StaticJavaParser.parse(file);
-                PackageNameSearching packageNameSearching = new PackageNameSearching(packagesName);
                 cu.findAll(MethodDeclaration.class).forEach(methodDeclaration -> {
+                    Map<String, AtomicInteger> callingMethodsMap = new HashMap<>(); //mapa ilosci wystapien metod wołajacych
+                    Map<String,Map<String,AtomicInteger>> packagesMethodsRelation = new HashMap<>(); //mapa relacji miedzy paczka a iloscia metod wolajacych
+
+                    MethodInPackageNameSearching packageNameSearching = new MethodInPackageNameSearching(packagesName);
                     methodDeclaration.accept(packageNameSearching, null);
+
+                    if (packageNameSearching.getMapSize() > 0) {
+                        String callingMethodName = methodDeclaration.getName().asString(); //nazwa metody ktora wola inne
+                        String callingPackageLongName = methodDeclaration.resolve().getPackageName(); //nazwa paczki w ktorejjest metoda ktora wola inne
+
+                        callingMethodsMap.putIfAbsent(callingMethodName,new AtomicInteger(0));
+                        callingMethodsMap.get(callingMethodName).incrementAndGet();
+                        packagesMethodsRelation.put(callingPackageLongName, callingMethodsMap);
+
+                        packagesRelationsMap.put(callingPackageLongName, packageNameSearching.getPackagesMap());
+                        packagesCalledMethodsRelationsMap.add(packageNameSearching.getPackagesMethodsRelation());
+                        packagesCallingMethodsRelationsMap.add(packagesMethodsRelation);
+                    }
+
                 });
-
-                if (packageNameSearching.getMapSize() > 0) {
-                    System.out.println(methodDeclaration.resolve().getPackageName() + " "+ methodDeclaration.getName() + " wywulujaca");
-                    packagesRelationsMap.put(cu.getPackageDeclaration().get().getName().asString(), packageNameSearching.getPackageMap());
-                }
-
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         });
-
         addSizeInformation(packagesRelationsMap, packagesWeights);
 
         return packagesRelationsMap;
@@ -164,7 +183,6 @@ public class InformationGenerator {
     //relacje miedzy metodami
     public Map<String, Map<String, AtomicInteger>> getMethodsRelations() {
         Map<String, Map<String, AtomicInteger>> methodsRelationsMap = new HashMap<>();
-
         classes.forEach(file -> {
             try {
                 CompilationUnit cu = StaticJavaParser.parse(file);
@@ -211,53 +229,86 @@ public class InformationGenerator {
         return filesRelationsMap;
     }
 
-    private static class PackageNameSearching extends VoidVisitorAdapter<Void> {
-        private Map<String, AtomicInteger> packageMap = new HashMap<String, AtomicInteger>();
+    //relacje miedzy metodami a plikami
+    public Map<String, String> getMethodsFilesRelations() {
+        Map<String, String> methodsFilesRelationsMap = new HashMap<>(); //mapa relacji definicji metod miedzy plikami
+        classes.forEach(file -> {
+            try {
+                CompilationUnit cu = StaticJavaParser.parse(file);
+                cu.findAll(MethodDeclaration.class).forEach(mcd -> {
+                    String methodName =  mcd.resolve().getName();
+                    methodsFilesRelationsMap.put(methodName, file.getName());
+                });
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return methodsFilesRelationsMap;
+    }
+
+    private static class MethodInPackageNameSearching extends VoidVisitorAdapter<Void> {
+        private Map<String, AtomicInteger> packagesMap = new HashMap<String, AtomicInteger>(); // mapa ilosci wystapien danej paczki w metodzie
         private Set<String > packagesName;
-        PackageNameSearching(Set<String > packagesName ) {
+        Map<String,Map<String,AtomicInteger>> packagesMethodsRelation = new HashMap<>(); //mapa relacji miedzy paczka a metoda i ilosc jej wystapien
+        Map<String, AtomicInteger> methodsCallingMap = new HashMap<>(); //mapa ilosci wystapien danej metody
+
+        MethodInPackageNameSearching(Set<String > packagesName ) {
             this.packagesName = packagesName;
         }
 
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             super.visit(n, arg);
-            String packagePath = n.resolve().getPackageName();
+            String packageLongName = n.resolve().getPackageName(); //dluga nazwa paczki
+            String methodName = n.resolve().getName(); //nazwa metody
             packagesName.stream()
-                    .filter(pN -> pN.equals(packagePath))
+                    .filter(pN -> pN.equals(packageLongName))
                     .forEach(pN ->
                     {
-                        System.out.println(packagePath+ " " + n.resolve().getClassName() + " " + n.getName().asString() + " wywolywana");
-                        packageMap.putIfAbsent(packagePath,new AtomicInteger(0));
-                        packageMap.get(packagePath).incrementAndGet();
+                        //informace o ilosci wystapien metody
+                        methodsCallingMap.putIfAbsent(methodName,new AtomicInteger(0));
+                        methodsCallingMap.get(methodName).incrementAndGet();
+
+                        //relacja paczka -> metody
+                        packagesMethodsRelation.put(packageLongName,methodsCallingMap);
+
+                        //informacja o ilosci wystapien paczki
+                        packagesMap.putIfAbsent(packageLongName,new AtomicInteger(0));
+                        packagesMap.get(packageLongName).incrementAndGet();
                     }
             );
+
         }
 
-        private Map<String, AtomicInteger> getPackageMap() {
-            return packageMap;
+        private Map<String, AtomicInteger> getPackagesMap() {
+            return packagesMap;
+        }
+
+        public Map<String, Map<String, AtomicInteger>> getPackagesMethodsRelation() {
+            return packagesMethodsRelation;
         }
 
         private int getMapSize() {
-            return packageMap.size();
+            return packagesMap.size();
         }
     }
 
     private static class MethodNameSearching extends VoidVisitorAdapter<Void> {
         private Map<String, AtomicInteger> methodMap = new HashMap<String, AtomicInteger>();
-        private Set<String > packagesName;
+        private Set<String > packagesName; //paczki w ktorych mamy szukac
         MethodNameSearching(Set<String > packagesName ) {
             this.packagesName = packagesName;
         }
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             super.visit(n, arg);
-            String packagePath = n.resolve().getPackageName();
-            String methodName = n.resolve().getName();
+            String packageLongName = n.resolve().getPackageName(); //cala nazwa paczki
+            String methodName = n.resolve().getName(); //nazwa metody
             packagesName.stream()
-                    .filter(mN -> mN.equals(packagePath))
+                    .filter(mN -> mN.equals(packageLongName))
                     .forEach(mN ->
                     {
-                        //System.out.println(n.resolve().getClassName());
                         methodMap.putIfAbsent(methodName,new AtomicInteger(0));
                         methodMap.get(methodName).incrementAndGet();
                     });
@@ -329,4 +380,5 @@ public class InformationGenerator {
     public Map<String, Integer> getFilesWeights() {
         return filesWeights;
     }
+
 }

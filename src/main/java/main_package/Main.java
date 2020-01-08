@@ -33,10 +33,16 @@ public class Main {
     private static Map<String, Integer> packagesWeights;
     private static int comboControl = 0;
 
+    private static void mainTest() {
+        System.out.println("Test w Main");
+    }
     public static void main(String[] args) {
         InformationGenerator informationGenerator = new InformationGenerator();
         Constants constants = new Constants();
         informationGenerator.test();
+        informationGenerator.test();
+        informationGenerator.test2();
+        mainTest();
         /*methodsRelations = informationGenerator.getMethodsRelations();
         methodsWeights = informationGenerator.getMethodsWeights();
 
