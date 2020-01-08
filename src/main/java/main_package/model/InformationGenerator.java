@@ -45,7 +45,7 @@ public class InformationGenerator {
         this.packagesName = searchPackagesName(classes);
 
         //getMethodsRelations();
-        //getPackagesRelations();
+        getPackagesRelations();
         //getFilesRelations();
         //getMethodsFilesRelations();
     }
@@ -230,7 +230,7 @@ public class InformationGenerator {
     }
 
     //relacje miedzy metodami a plikami
-    public Map<String, String> getMethodsFilesRelations() {
+    public Map<String, String> getMethodsFilesRelations() {// nazwa pliku i metody
         Map<String, String> methodsFilesRelationsMap = new HashMap<>(); //mapa relacji definicji metod miedzy plikami
         classes.forEach(file -> {
             try {

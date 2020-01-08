@@ -7,10 +7,16 @@ import com.mxgraph.view.mxGraph;
 
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 
+import org.antlr.v4.runtime.tree.Tree;
+
 import java.awt.HeadlessException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -23,7 +29,7 @@ public class JGraphXDraw extends JApplet {
         init();
     }
 
-    public void createGraphX(Map<String, Map<String, Integer>> projectStructure, Map<String, Integer> projectInfo, JFrame frame) {
+    public void createGraphX(Map<String, Map<String, AtomicInteger>> projectStructure, Map<String, Integer> projectInfo, JFrame frame) {
         if(projectStructure == null || projectInfo == null){
             throw new NullPointerException();
         }
@@ -39,14 +45,14 @@ public class JGraphXDraw extends JApplet {
         createVertex(newGraph, infoEntrySet, vertexList, "#add8e6");
         vertexList2 = vertexList;
 
-        Set<Map.Entry<String, Map<String, Integer>>> entrySet = projectStructure.entrySet();
+        Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet = projectStructure.entrySet();
         createEdges(newGraph, entrySet, vertexList, vertexList2, "#add8e6");
 
         setLayout();
         newGraph.getModel().endUpdate();
         SwingUtilities.updateComponentTreeUI(frame);
     }
-    public void createGraphX(Map<String, Map<String, Integer>> projectStructure1, Map<String, Map<String, Integer>> projectStructure2, Map<String, Integer> projectInfo1, Map<String, Integer> projectInfo2, JFrame frame) {
+    public void createGraphX(Map<String, Map<String, AtomicInteger>> projectStructure1, Map<String, Map<String, AtomicInteger>> projectStructure2, Map<String, Integer> projectInfo1, Map<String, Integer> projectInfo2, JFrame frame) {
         if(projectStructure1 == null || projectInfo1 == null || projectStructure2 == null || projectInfo2 == null){
             throw new NullPointerException();
         }
@@ -66,7 +72,7 @@ public class JGraphXDraw extends JApplet {
 
         vertexList2 = vertexList;
 
-        Set<Map.Entry<String, Map<String, Integer>>> entrySet = projectStructure1.entrySet();
+        Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet = projectStructure1.entrySet();
         createEdges(newGraph, entrySet, vertexList, vertexList2, "#add8e6");
 
         entrySet = projectStructure2.entrySet();
@@ -76,7 +82,7 @@ public class JGraphXDraw extends JApplet {
         newGraph.getModel().endUpdate();
         SwingUtilities.updateComponentTreeUI(frame);
     }
-    public void createGraphX(Map<String, Map<String, Integer>> projectStructure1, Map<String, Map<String, Integer>> projectStructure2, Map<String, Map<String, Integer>> projectStructure3, Map<String, Integer> projectInfo1, Map<String, Integer> projectInfo2, Map<String, Integer> projectInfo3, JFrame frame) {
+    public void createGraphX(Map<String, Map<String, AtomicInteger>> projectStructure1, Map<String, Map<String, AtomicInteger>> projectStructure2, Map<String, Map<String, AtomicInteger>> projectStructure3, Map<String, Integer> projectInfo1, Map<String, Integer> projectInfo2, Map<String, Integer> projectInfo3, JFrame frame) {
         if(projectStructure1 == null || projectInfo1 == null || projectStructure2 == null || projectInfo2 == null || projectStructure3 == null || projectInfo3 == null){
             throw new NullPointerException();
         }
@@ -99,7 +105,7 @@ public class JGraphXDraw extends JApplet {
 
         vertexList2 = vertexList;
 
-        Set<Map.Entry<String, Map<String, Integer>>> entrySet = projectStructure1.entrySet();
+        Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet = projectStructure1.entrySet();
         createEdges(newGraph, entrySet, vertexList, vertexList2, "#add8e6");
 
         entrySet = projectStructure2.entrySet();
@@ -108,6 +114,40 @@ public class JGraphXDraw extends JApplet {
         entrySet = projectStructure3.entrySet();
         createEdges(newGraph, entrySet, vertexList, vertexList2, "#98FB98");
 
+        setLayout();
+        newGraph.getModel().endUpdate();
+        SwingUtilities.updateComponentTreeUI(frame);
+    }
+    public void createGraphX(Map<String, String> graphStructure, JFrame frame){
+        newGraph.removeCells(newGraph.getChildVertices(newGraph.getDefaultParent()));
+
+        newGraph.getModel().beginUpdate();
+
+        Set<mxCell> vertexMethods = new HashSet<>();
+        Set<String> vertexFilesNames = new HashSet<>();
+        Set<mxCell> vertexFiles = new HashSet<>();
+
+        Set<Map.Entry<String, String>> entrySet = graphStructure.entrySet();
+        for(Map.Entry<String, String> entry: entrySet){
+            vertexFilesNames.add(entry.getValue());
+        }
+        for(Map.Entry<String, String> entry: entrySet) {
+            vertexMethods.add((mxCell) newGraph.insertVertex(parent, null, entry.getKey(), 25, 0, 100, 50));
+        }
+        for(String vertexName: vertexFilesNames){
+            vertexFiles.add((mxCell) newGraph.insertVertex(parent, null, vertexName, 25, 0,100,50));
+        }
+        for(Map.Entry<String, String> entry: entrySet) {
+            for(mxCell o : vertexFiles){
+                for(mxCell o2: vertexMethods){
+                    if(o.getValue().equals(entry.getValue())){
+                        if(o2.getValue().equals(entry.getKey())){
+                            newGraph.insertEdge(parent, null, "", o2, o);
+                        }
+                    }
+                }
+            }
+        }
         setLayout();
         newGraph.getModel().endUpdate();
         SwingUtilities.updateComponentTreeUI(frame);
@@ -124,11 +164,11 @@ public class JGraphXDraw extends JApplet {
         mxHierarchicalLayout layout2 = new mxHierarchicalLayout(newGraph);
         layout2.execute(parent);
     }
-    private void createEdges(mxGraph myGraph, Set<Map.Entry<String, Map<String, Integer>>> entrySet, ArrayList<mxCell> vertexList1, ArrayList<mxCell> vertexList2, String edgeColor){
-        for (Map.Entry<String, Map<String, Integer>> entry : entrySet) {
-            Set<Map.Entry<String, Integer>> littleEntrySet = entry.getValue().entrySet();
-            for (Map.Entry<String, Integer> littleEntry : littleEntrySet) {
-                if (littleEntry.getValue() > 0) {
+    private void createEdges(mxGraph myGraph, Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet, ArrayList<mxCell> vertexList1, ArrayList<mxCell> vertexList2, String edgeColor){
+        for (Map.Entry<String, Map<String, AtomicInteger>> entry : entrySet) {
+            Set<Map.Entry<String, AtomicInteger>> littleEntrySet = entry.getValue().entrySet();
+            for (Map.Entry<String, AtomicInteger> littleEntry : littleEntrySet) {
+                if (littleEntry.getValue().get() > 0) {
                     for (mxCell o : vertexList1) {
                         for (mxCell o2 : vertexList2) {
                             if (o.getValue().equals(entry.getKey())) {

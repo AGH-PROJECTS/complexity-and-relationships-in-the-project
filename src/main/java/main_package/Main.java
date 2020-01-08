@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -25,9 +26,10 @@ import main_package.tools.Constants;
 public class Main {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private static JFrame frame;
-    private static Map<String, Map<String, Integer>> filesRelations;
-    private static Map<String, Map<String, Integer>> methodsRelations;
-    private static Map<String, Map<String, Integer>> packagesRelations;
+    private static Map<String, Map<String, AtomicInteger>> filesRelations;
+    private static Map<String, Map<String, AtomicInteger>> methodsRelations;
+    private static Map<String, Map<String, AtomicInteger>> packagesRelations;
+    private static Map<String, String> filesMethodsRelations;
     private static Map<String, Integer> filesWeights;
     private static Map<String, Integer> methodsWeights;
     private static Map<String, Integer> packagesWeights;
@@ -43,7 +45,7 @@ public class Main {
         informationGenerator.test();
         informationGenerator.test2();
         mainTest();
-        /*methodsRelations = informationGenerator.getMethodsRelations();
+        methodsRelations = informationGenerator.getMethodsRelations();
         methodsWeights = informationGenerator.getMethodsWeights();
 
         packagesRelations = informationGenerator.getPackagesRelations();
@@ -52,12 +54,15 @@ public class Main {
         filesRelations = informationGenerator.getFilesRelations();
         filesWeights = informationGenerator.getFilesWeights();
 
+        filesMethodsRelations = informationGenerator.getMethodsFilesRelations();
+
         JPanel allContent = new JPanel(new BorderLayout());
 
         JGraphXDraw applet = new JGraphXDraw();
         applet.setBackground(Color.DARK_GRAY);
         String[] optionStrings = {"Graf zależności między plikami", "Graf relacji między funkcjami/metodami",
-                "Graf relacji między modułami logicznymi", "Graf 1 i 2", "Graf 1 i 3", "Graf 2 i 3", "Wszystkie grafy"};
+                "Graf relacji między modułami logicznymi", "Graf 1 i 2", "Graf 1 i 3", "Graf 2 i 3", "Wszystkie grafy", "Graf relacji między plikami," +
+                "a metodami/funkcjami"};
 
         JComboBox optionList = new JComboBox(optionStrings);
         optionList.setSelectedIndex(-1);
@@ -86,6 +91,9 @@ public class Main {
                     case 6:
                         applet.createGraphX(filesRelations, methodsRelations, packagesRelations, filesWeights, methodsWeights, packagesWeights, frame);
                         break;
+                    case 7:
+                        applet.createGraphX(filesMethodsRelations, frame);
+                        break;
                     default:
                         System.out.println("Nothing to show!");
                         break;
@@ -103,7 +111,7 @@ public class Main {
         frame.setContentPane(allContent);
         frame.setVisible(true);
 
-        try {
+       /* try {
             XMLCreator xml = new XMLCreator();
             xml.addElements(packagesRelations, packagesWeights);
             XMLBuilder2 builder = xml.getExportedXML();
