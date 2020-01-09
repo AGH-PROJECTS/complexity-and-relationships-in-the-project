@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static main_package.tools.Constants.MAIN_PATH;
+import static main_package.tools.Maintenance.MAIN_PATH;
 
 public class InformationGenerator {
     private Set<File> classes;

@@ -1,27 +1,28 @@
 package main_package;
 
-import com.jamesmurty.utils.XMLBuilder2;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import main_package.export.XMLCreator;
 import main_package.model.InformationGenerator;
 import main_package.model.JGraphXDraw;
-import main_package.tools.Constants;
+import main_package.tools.Maintenance;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 public class Main {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -39,12 +40,8 @@ public class Main {
         System.out.println("Test w Main");
     }
     public static void main(String[] args) {
+        System.out.println(Maintenance.VERSION_IDENTIFIER);
         InformationGenerator informationGenerator = new InformationGenerator();
-        Constants constants = new Constants();
-        informationGenerator.test();
-        informationGenerator.test();
-        informationGenerator.test2();
-        mainTest();
         methodsRelations = informationGenerator.getMethodsRelations();
         methodsWeights = informationGenerator.getMethodsWeights();
 
