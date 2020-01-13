@@ -18,7 +18,7 @@ public class Maintenance {
     private final static String MINOR_VERSION = "6."; //w zaleznosci która fazę robimy
     public final static String VERSION_IDENTIFIER = getVersionIdentifier();
 
-    private static String getVersionIdentifier() {
+    public static String getVersionIdentifier() {
         String version;
         Repository repository = findGitRepository();
         int commitsCounter = findCommitsCounter(repository);

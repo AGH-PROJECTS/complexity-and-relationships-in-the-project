@@ -36,11 +36,9 @@ public class Main {
     private static Map<String, Integer> packagesWeights;
     private static int comboControl = 0;
 
-    private static void mainTest() {
-        System.out.println("Test w Main");
-    }
     public static void main(String[] args) {
-        System.out.println(Maintenance.VERSION_IDENTIFIER);
+        System.out.println(Maintenance.getVersionIdentifier());
+
         InformationGenerator informationGenerator = new InformationGenerator();
         methodsRelations = informationGenerator.getMethodsRelations();
         methodsWeights = informationGenerator.getMethodsWeights();

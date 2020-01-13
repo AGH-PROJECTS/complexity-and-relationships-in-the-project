@@ -7,6 +7,7 @@ import javax.xml.transform.OutputKeys;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class XMLCreator {
     private XMLBuilder2 exportedXML;
@@ -33,7 +34,7 @@ public class XMLCreator {
         properties.put("{http://xml.apache.org/xslt}indent-amount", "2");
     }
 
-    public void addElements(Map<String, Map<String, Integer>> structure, Map<String, Integer> info) {
+    public void addElements(Map<String, Map<String, AtomicInteger>> structure, Map<String, Integer> info) {
 
         //Loop for creating ID for every class on graph
         Map<String, Integer> tmpIDMap = new HashMap();
@@ -52,7 +53,7 @@ public class XMLCreator {
         }
 
         structure.forEach((k, v) -> {
-            for (Map.Entry<String, Integer> entry : v.entrySet()) {
+            for (Map.Entry<String, AtomicInteger> entry : v.entrySet()) {
                 Integer tmp = tmpIDMap.get(entry.getKey());
                 System.out.println(tmp);
                 exportedXML.e("Usage")

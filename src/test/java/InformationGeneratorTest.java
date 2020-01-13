@@ -11,15 +11,15 @@ import main_package.model.InformationGenerator;
 public class InformationGeneratorTest {
 
     private static InformationGenerator gen;
-    private static Map<String, Map<String, Integer>> filesRelations;
+    private static Map<String, Map<String, AtomicInteger>> filesRelations;
     private static Map<String, Map<String, AtomicInteger>> methodsRelations;
 
-  /*  @BeforeClass
+    @BeforeClass
     public static void init() throws IOException {
         gen = new InformationGenerator();
         methodsRelations = gen.getMethodsRelations();
         filesRelations = gen.getFilesRelations();
-    }*/
+    }
 
     @Test
     public void InformationGenerator_NotThrowIOException() {
