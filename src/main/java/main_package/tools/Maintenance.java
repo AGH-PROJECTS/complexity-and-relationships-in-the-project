@@ -16,7 +16,7 @@ public class Maintenance {
     private final static String GIT_DIR = System.getProperty("user.dir") + "\\.git";
     private final static String MAJOR_VERSION = "1.";
     private final static String MINOR_VERSION = "6."; //w zaleznosci która fazę robimy
-    public final static String VERSION_IDENTIFIER = getVersionIdentifier();
+    public final static String VERSION_IDENTIFIER = getVersionIdentifier(); // pobranie wersji projektu
 
     public static String getVersionIdentifier() {
         String version;
