@@ -3,6 +3,7 @@ package main_package;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
 import java.io.File;
@@ -10,8 +11,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import main_package.model.InformationGenerator;
@@ -54,15 +57,24 @@ public class Main {
         JPanel allContent = new JPanel(new BorderLayout());
 
         JGraphXDraw applet = new JGraphXDraw();
-        applet.setBackground(Color.DARK_GRAY);
+
         String[] optionStrings = {"Graf zależności między plikami", "Graf relacji między funkcjami/metodami",
                 "Graf relacji między modułami logicznymi", "Graf 1 i 2", "Graf 1 i 3", "Graf 2 i 3", "Wszystkie grafy", "Graf relacji między plikami," +
                 "a metodami/funkcjami"};
 
-        JComboBox optionList = new JComboBox(optionStrings);
+        JLabel version = new JLabel("Version: " + Maintenance.VERSION_IDENTIFIER);
+
+        JPanel downPanel = new JPanel(new BorderLayout());
+        JButton exportButton = new JButton("Export selected graph!");
+        exportButton.setEnabled(false);
+
+
+        JComboBox<String> optionList = new JComboBox(optionStrings);
+        optionList.setLightWeightPopupEnabled(false);
         optionList.setSelectedIndex(-1);
         optionList.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
+                exportButton.setEnabled(true);
                 comboControl = optionList.getSelectedIndex();
                 switch (comboControl) {
                     case 0:
@@ -95,13 +107,16 @@ public class Main {
                 }
             }
         });
-        allContent.add(optionList, BorderLayout.PAGE_START);
+        allContent.add(optionList, BorderLayout.NORTH);
         allContent.add(applet, BorderLayout.CENTER);
+        downPanel.add(version, BorderLayout.LINE_START);
+        downPanel.add(exportButton, BorderLayout.LINE_END);
+        allContent.add(downPanel, BorderLayout.SOUTH);
         frame = new JFrame();
         frame.setTitle("Projekt - Inżynieria oprogramowania");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(screenSize.width, screenSize.height);
-        frame.setResizable(true);
+        frame.setResizable(false);
         frame.add(allContent);
         frame.setContentPane(allContent);
         frame.setVisible(true);
