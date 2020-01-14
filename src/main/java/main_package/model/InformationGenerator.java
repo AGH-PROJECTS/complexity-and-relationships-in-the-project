@@ -45,7 +45,7 @@ public class InformationGenerator {
         this.packagesName = searchPackagesName(classes);
 
         //getMethodsRelations();
-        getPackagesRelations();
+        //getPackagesRelations();
         //getFilesRelations();
         //getMethodsFilesRelations();
     }
