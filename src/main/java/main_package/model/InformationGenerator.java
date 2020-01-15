@@ -1,27 +1,21 @@
 package main_package.model;
 
-import com.github.javaparser.ParseResult;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
-import com.github.javaparser.symbolsolver.javaparsermodel.contexts.ClassOrInterfaceDeclarationContext;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import com.github.javaparser.utils.SourceRoot;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.module.ResolvedModule;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -38,8 +32,6 @@ public class InformationGenerator {
     private Map<String, Map<String, Integer>> methodsRelations;
 
     public InformationGenerator() {
-
-
         this.packagesWeights = new HashMap<>();
         this.methodsWeights = new HashMap<>();
         this.filesWeights = new HashMap<>();
@@ -53,24 +45,7 @@ public class InformationGenerator {
         this.classesName = searchClassesName(classes);
         this.packagesName = searchPackagesName(classes);
 
-        /*File file = new File("C:\\Users\\Comarch\\Downloads\\Evolution-Generator-master\\Evolution-Generator-master\\src\\mainPackage");
-        SourceRoot sourceRoot = new SourceRoot(file.toPath());
-        List<ParseResult<CompilationUnit>> compilationUnits = null;
-        try {
-            compilationUnits = sourceRoot.tryToParse();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        compilationUnits.forEach(result->{
-            CompilationUnit cu = result.getResult().get();
-            if(cu.getPackageDeclaration().isPresent()) {
-                System.out.println(cu.getPackageDeclaration().get().getName().asString());
-                cu.findAll(MethodDeclaration.class).forEach(m-> );
-                System.out.println();
-            }
-        });*/
-
-        getMethodsRelations();
+        //getMethodsRelations();
         //getPackagesRelations();
         //getFilesRelations();
         //getMethodsFilesRelations();
@@ -92,9 +67,8 @@ public class InformationGenerator {
         TypeSolver reflectionTypeSolver = new ReflectionTypeSolver();
         JavaSymbolSolver javaSymbolSolver;
         CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
-        combinedTypeSolver.add(reflectionTypeSolver);
         combinedTypeSolver.add(typeSolver);
-
+        combinedTypeSolver.add(reflectionTypeSolver);
         List<String> listJars = getJarsToResolver();
 
         listJars.forEach(jar -> {
@@ -142,8 +116,10 @@ public class InformationGenerator {
                 file -> {
                     try {
                         CompilationUnit cu = StaticJavaParser.parse(file);
-                        String packageName = cu.getPackageDeclaration().get().getName().asString();
-                        packagesName.add(packageName);
+                        if(cu.getPackageDeclaration().isPresent()) {
+                            String packageName = cu.getPackageDeclaration().get().getName().asString();
+                            packagesName.add(packageName);
+                        }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -161,12 +137,12 @@ public class InformationGenerator {
                     checkDirectory(cFile, fileSet);
                 } else {
                     if(cFile.getName().contains(".java"))
-                    fileSet.add(cFile);
+                        fileSet.add(cFile);
                 }
             });
         } else {
             if(file.getName().contains(".java"))
-            fileSet.add(file);
+                fileSet.add(file);
         }
     }
 
@@ -187,7 +163,7 @@ public class InformationGenerator {
 
                     if (packageNameSearching.getMapSize() > 0) {
                         String callingMethodName = methodDeclaration.getName().asString(); //nazwa metody ktora wola inne
-                        String callingPackageLongName = methodDeclaration.getName().asString(); //nazwa paczki w ktorejjest metoda ktora wola inne
+                        String callingPackageLongName = methodDeclaration.resolve().getPackageName(); //nazwa paczki w ktorejjest metoda ktora wola inne
 
                         callingMethodsMap.putIfAbsent(callingMethodName,new AtomicInteger(0));
                         callingMethodsMap.get(callingMethodName).incrementAndGet();
@@ -219,7 +195,7 @@ public class InformationGenerator {
                     mcd.accept(methodNameSearching, null);
 
                     if (methodNameSearching.getMapSize() > 0) {
-                        methodsRelationsMap.put(mcd.getName().asString(), methodNameSearching.getMethodMap());
+                        methodsRelationsMap.put(mcd.resolve().getName(), methodNameSearching.getMethodMap());
                     }
                 });
             } catch (FileNotFoundException e) {
@@ -264,7 +240,7 @@ public class InformationGenerator {
             try {
                 CompilationUnit cu = StaticJavaParser.parse(file);
                 cu.findAll(MethodDeclaration.class).forEach(mcd -> {
-                    String methodName =  mcd.getName().asString();
+                    String methodName =  mcd.resolve().getName();
                     methodsFilesRelationsMap.put(methodName, file.getName());
                 });
             } catch (FileNotFoundException e) {
@@ -288,9 +264,8 @@ public class InformationGenerator {
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             super.visit(n, arg);
-            CompilationUnit cu = n.findCompilationUnit().get();
-            //System.out.println(  n.findCompilationUnit().get().getPackageDeclaration().get().getName().asString() + " Paczka");
-            String packageLongName = n.findCompilationUnit().get().getPackageDeclaration().get().getNameAsString(); //dluga nazwa paczki
+            System.out.println(n.resolve().getQualifiedName());
+            String packageLongName = n.resolve().getPackageName(); //dluga nazwa paczki
             String methodName = n.getNameAsString(); //nazwa metody
             packagesName.stream()
                     .filter(pN -> pN.equals(packageLongName))
@@ -333,7 +308,7 @@ public class InformationGenerator {
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             super.visit(n, arg);
-            String packageLongName = n.findCompilationUnit().get().getPackageDeclaration().get().getNameAsString(); //cala nazwa paczki
+            String packageLongName = n.resolve().getPackageName(); //cala nazwa paczki
             String methodName = n.getNameAsString(); //nazwa metody
             packagesName.stream()
                     .filter(mN -> mN.equals(packageLongName))
@@ -363,9 +338,8 @@ public class InformationGenerator {
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             super.visit(n, arg);
-            String packagePath = n.findCompilationUnit().get().getPackageDeclaration().get().getNameAsString();
-            System.out.println();
-            String fileName = n.getParentNode().get().findCompilationUnit().get().getPrimaryType().get().getNameAsString() + ".java";
+            String packagePath = n.resolve().getPackageName();
+            String fileName = n.resolve().getClassName() + ".java";
             packagesName.stream()
                     .filter(mN -> mN.equals(packagePath))
                     .forEach(mN ->

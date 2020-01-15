@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Maintenance {
+    //C:\Users\Comarch\Downloads\Evolution-Generator-master\Evolution-Generator-master\src
     public final static String MAIN_PATH = "src/main/java";
     private final static String GIT_DIR = System.getProperty("user.dir") + "\\.git";
     private final static String MAJOR_VERSION = "1.";
