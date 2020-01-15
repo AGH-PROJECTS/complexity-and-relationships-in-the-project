@@ -31,6 +31,11 @@ public class InformationGenerator {
     private Map<String, Integer> filesWeights;
     private Map<String, Map<String, Integer>> methodsRelations;
 
+    private Map<String, Map<String, AtomicInteger>> filesDependency;
+    private Map<String, Map<String, AtomicInteger>> methodsDependency;
+    private Map<String, Map<String, AtomicInteger>> packagesDependency;
+    private Map<String, String> filesMethodsDependency;
+
     public InformationGenerator() {
         this.packagesWeights = new HashMap<>();
         this.methodsWeights = new HashMap<>();
@@ -44,23 +49,16 @@ public class InformationGenerator {
         this.classes = searchClasses();
         this.classesName = searchClassesName(classes);
         this.packagesName = searchPackagesName(classes);
-
-        //getMethodsRelations();
-        //getPackagesRelations();
-        //getFilesRelations();
-        //getMethodsFilesRelations();
+        createRelationsMaps();
     }
 
-    public void test() {
-        System.out.println("Test");
+    private void createRelationsMaps() {
+        this.filesDependency = getFilesRelations();
+        this.methodsDependency = getMethodsRelations();
+        this.packagesDependency = getPackagesRelations();
+        this.filesMethodsDependency = getMethodsFilesRelations();
     }
 
-    public void test2() {
-        System.out.println("Test");
-    }
-    public void test3() {
-        System.out.println("Test");
-    }
     //konfiguracja typeSolvera
     private void specifySymbolsSolver() throws IOException {
         TypeSolver typeSolver = new JavaParserTypeSolver(MAIN_PATH);
@@ -147,7 +145,7 @@ public class InformationGenerator {
     }
 
     //relacje miedzy package
-    public Map<String, Map<String, AtomicInteger>> getPackagesRelations() {
+    private Map<String, Map<String, AtomicInteger>> getPackagesRelations() {
         Map<String, Map<String, AtomicInteger>> packagesRelationsMap = new HashMap<>(); //mapa relacji miedzy paczkami
         List<Map<String, Map<String, AtomicInteger>>> packagesCalledMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczka a metodami ktore sa wolane z innej metody
         List<Map<String, Map<String, AtomicInteger>>> packagesCallingMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczkami a metodami ktore wolaja metody z innych paczek
@@ -185,7 +183,7 @@ public class InformationGenerator {
     }
 
     //relacje miedzy metodami
-    public Map<String, Map<String, AtomicInteger>> getMethodsRelations() {
+    private Map<String, Map<String, AtomicInteger>> getMethodsRelations() {
         Map<String, Map<String, AtomicInteger>> methodsRelationsMap = new HashMap<>();
         classes.forEach(file -> {
             try {
@@ -208,7 +206,7 @@ public class InformationGenerator {
     }
 
     //relacje miedzy plikami
-    public Map<String, Map<String, AtomicInteger>> getFilesRelations() {
+    private Map<String, Map<String, AtomicInteger>> getFilesRelations() {
         Map<String, Map<String, AtomicInteger>> filesRelationsMap = new HashMap<>();
 
         classes.forEach(file -> {
@@ -234,7 +232,7 @@ public class InformationGenerator {
     }
 
     //relacje miedzy metodami a plikami
-    public Map<String, String> getMethodsFilesRelations() {// nazwa pliku i metody
+    private Map<String, String> getMethodsFilesRelations() {// nazwa pliku i metody
         Map<String, String> methodsFilesRelationsMap = new HashMap<>(); //mapa relacji definicji metod miedzy plikami
         classes.forEach(file -> {
             try {
@@ -358,7 +356,6 @@ public class InformationGenerator {
         }
     }
 
-
     private void addSizeInformation(Map<String, Map<String, AtomicInteger>> mainMap, Map<String, Integer> valueMap) {
         for (Map.Entry<String, Map<String, AtomicInteger>> entry : mainMap.entrySet()) {
             Map<String, AtomicInteger> mapValue = entry.getValue();
@@ -386,4 +383,19 @@ public class InformationGenerator {
         return filesWeights;
     }
 
+    public Map<String, Map<String, AtomicInteger>> getFilesDependency() {
+        return filesDependency;
+    }
+
+    public Map<String, Map<String, AtomicInteger>> getMethodsDependency() {
+        return methodsDependency;
+    }
+
+    public Map<String, Map<String, AtomicInteger>> getPackagesDependency() {
+        return packagesDependency;
+    }
+
+    public Map<String, String> getFilesMethodsDependency() {
+        return filesMethodsDependency;
+    }
 }

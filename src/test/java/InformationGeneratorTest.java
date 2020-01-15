@@ -17,8 +17,8 @@ public class InformationGeneratorTest {
     @BeforeClass
     public static void init() throws IOException {
         gen = new InformationGenerator();
-        methodsRelations = gen.getMethodsRelations();
-        filesRelations = gen.getFilesRelations();
+        methodsRelations = gen.getMethodsDependency();
+        filesRelations = gen.getFilesDependency();
     }
 
     @Test
@@ -38,7 +38,7 @@ public class InformationGeneratorTest {
 
     @Test
     public void getPackagesRelations_NotNull() throws IOException {
-        Assert.assertNotNull(gen.getPackagesRelations());
+        Assert.assertNotNull(gen.getPackagesDependency());
     }
 
     @Test

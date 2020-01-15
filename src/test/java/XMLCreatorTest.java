@@ -19,8 +19,8 @@ public class XMLCreatorTest {
     public static void init() throws IOException {
         obj = new XMLCreator();
         gen = new InformationGenerator();
-        methodsRelations = gen.getMethodsRelations();
-        filesRelations = gen.getFilesRelations();
+        methodsRelations = gen.getMethodsDependency();
+        filesRelations = gen.getFilesDependency();
     }
     @Test
     public void getExportedXML_NotNull(){

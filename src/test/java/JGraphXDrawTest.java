@@ -21,8 +21,8 @@ public class JGraphXDrawTest {
     public static void init() throws IOException {
         applet = new JGraphXDraw();
         gen = new InformationGenerator();
-        methodsRelations = gen.getMethodsRelations();
-        filesRelations = gen.getFilesRelations();
+        methodsRelations = gen.getMethodsDependency();
+        filesRelations = gen.getFilesDependency();
     }
 
     @Test
@@ -61,6 +61,6 @@ public class JGraphXDrawTest {
 
     @Test(expected = NullPointerException.class)
     public void createGraph_6_ThrowNullPointerException() {
-        applet.createGraphX(methodsRelations, filesRelations, gen.getPackagesRelations(), gen.getMethodsWeights(),gen.getFilesWeights(), gen.getPackagesWeights(), null);
+        applet.createGraphX(methodsRelations, filesRelations, gen.getPackagesDependency(), gen.getMethodsWeights(),gen.getFilesWeights(), gen.getPackagesWeights(), null);
     }
 }

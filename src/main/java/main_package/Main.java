@@ -41,18 +41,53 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println(Maintenance.getVersionIdentifier());
+        startView();
 
+       /* try {
+            XMLCreator xml = new XMLCreator();
+            xml.addElements(packagesRelations, packagesWeights);
+            XMLBuilder2 builder = xml.getExportedXML();
+            PrintWriter writer = new PrintWriter("package.xml");
+            Properties properties = xml.getProperties();
+            builder.toWriter(writer, properties);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            XMLCreator xml = new XMLCreator();
+            xml.addElements(filesRelations, filesWeights);
+            XMLBuilder2 builder = xml.getExportedXML();
+            PrintWriter writer = new PrintWriter("files.xml");
+            Properties properties = xml.getProperties();
+            builder.toWriter(writer, properties);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            XMLCreator xml = new XMLCreator();
+            xml.addElements(methodsRelations, methodsWeights);
+            XMLBuilder2 builder = xml.getExportedXML();
+            PrintWriter writer = new PrintWriter("methods.xml");
+            Properties properties = xml.getProperties();
+            builder.toWriter(writer, properties);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+*/
+    }
+
+    private static void startView() {
         InformationGenerator informationGenerator = new InformationGenerator();
-        methodsRelations = informationGenerator.getMethodsRelations();
+        methodsRelations = informationGenerator.getMethodsDependency();
         methodsWeights = informationGenerator.getMethodsWeights();
 
-        packagesRelations = informationGenerator.getPackagesRelations();
+        packagesRelations = informationGenerator.getPackagesDependency();
         packagesWeights = informationGenerator.getPackagesWeights();
 
-        filesRelations = informationGenerator.getFilesRelations();
+        filesRelations = informationGenerator.getFilesDependency();
         filesWeights = informationGenerator.getFilesWeights();
 
-        filesMethodsRelations = informationGenerator.getMethodsFilesRelations();
+        filesMethodsRelations = informationGenerator.getFilesMethodsDependency();
 
         JPanel allContent = new JPanel(new BorderLayout());
 
@@ -120,37 +155,5 @@ public class Main {
         frame.add(allContent);
         frame.setContentPane(allContent);
         frame.setVisible(true);
-
-       /* try {
-            XMLCreator xml = new XMLCreator();
-            xml.addElements(packagesRelations, packagesWeights);
-            XMLBuilder2 builder = xml.getExportedXML();
-            PrintWriter writer = new PrintWriter("package.xml");
-            Properties properties = xml.getProperties();
-            builder.toWriter(writer, properties);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            XMLCreator xml = new XMLCreator();
-            xml.addElements(filesRelations, filesWeights);
-            XMLBuilder2 builder = xml.getExportedXML();
-            PrintWriter writer = new PrintWriter("files.xml");
-            Properties properties = xml.getProperties();
-            builder.toWriter(writer, properties);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            XMLCreator xml = new XMLCreator();
-            xml.addElements(methodsRelations, methodsWeights);
-            XMLBuilder2 builder = xml.getExportedXML();
-            PrintWriter writer = new PrintWriter("methods.xml");
-            Properties properties = xml.getProperties();
-            builder.toWriter(writer, properties);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-*/
     }
 }
