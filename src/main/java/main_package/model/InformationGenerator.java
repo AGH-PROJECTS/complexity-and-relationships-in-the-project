@@ -360,6 +360,10 @@ public class InformationGenerator {
         for (Map.Entry<String, Map<String, AtomicInteger>> entry : mainMap.entrySet()) {
             Map<String, AtomicInteger> mapValue = entry.getValue();
 
+            if(!valueMap.containsKey(entry.getKey())) {
+                valueMap.put(entry.getKey(),1);
+            }
+
             for (Map.Entry<String, AtomicInteger> entryMap : mapValue.entrySet()) {
                 String name = entryMap.getKey();
                 if (valueMap.containsKey(name)) {
