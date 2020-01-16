@@ -261,7 +261,6 @@ public class InformationGenerator {
 
         @Override
         public void visit(MethodCallExpr n, Void arg) {
-            super.visit(n, arg);
             String packageLongName = n.resolve().getPackageName(); //dluga nazwa paczki
             String methodName = n.getNameAsString(); //nazwa metody
             packagesName.stream()
@@ -304,7 +303,6 @@ public class InformationGenerator {
         }
         @Override
         public void visit(MethodCallExpr n, Void arg) {
-            super.visit(n, arg);
             String packageLongName = n.resolve().getPackageName(); //cala nazwa paczki
             String methodName = n.getNameAsString(); //nazwa metody
             packagesName.stream()
@@ -334,7 +332,6 @@ public class InformationGenerator {
         }
         @Override
         public void visit(MethodCallExpr n, Void arg) {
-            super.visit(n, arg);
             String packagePath = n.resolve().getPackageName();
             String fileName = n.resolve().getClassName() + ".java";
             packagesName.stream()
