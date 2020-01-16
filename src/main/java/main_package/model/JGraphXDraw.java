@@ -26,6 +26,10 @@ public class JGraphXDraw extends JApplet {
     private static Object parent;
     private mxGraph newGraph;
 
+    public mxGraph getNewGraph() {
+        return newGraph;
+    }
+
     public JGraphXDraw() throws HeadlessException {
         init();
     }

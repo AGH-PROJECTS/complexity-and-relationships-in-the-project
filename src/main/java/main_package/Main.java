@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +44,6 @@ public class Main {
     public static void main(String[] args) {
         System.out.println(Maintenance.getVersionIdentifier());
         startView();
-
        /* try {
             XMLCreator xml = new XMLCreator();
             xml.addElements(packagesRelations, packagesWeights);
@@ -77,18 +78,7 @@ public class Main {
     }
 
     private static void startView() {
-        InformationGenerator informationGenerator = new InformationGenerator();
-        methodsRelations = informationGenerator.getMethodsDependency();
-        methodsWeights = informationGenerator.getMethodsWeights();
-
-        packagesRelations = informationGenerator.getPackagesDependency();
-        packagesWeights = informationGenerator.getPackagesWeights();
-
-        filesRelations = informationGenerator.getFilesDependency();
-        filesWeights = informationGenerator.getFilesWeights();
-
-        filesMethodsRelations = informationGenerator.getFilesMethodsDependency();
-
+        loadData();
         JPanel allContent = new JPanel(new BorderLayout());
 
         JGraphXDraw applet = new JGraphXDraw();
@@ -101,6 +91,25 @@ public class Main {
 
         JPanel downPanel = new JPanel(new BorderLayout());
         JButton exportButton = new JButton("Export selected graph!");
+        exportButton.addActionListener(e -> {
+            System.out.print(e.getActionCommand());
+            //tutaj funkcja exportujaca graf
+        });
+        JButton changeSource = new JButton("Change source for another project");
+        changeSource.addActionListener(e -> {
+            if(e.getActionCommand().contains("Change source for another project")){
+                changeSource.setText("Change source for your project");
+                Maintenance.MAIN_PATH = "path to another project";
+                applet.getNewGraph().removeCells(applet.getNewGraph().getChildVertices(applet.getNewGraph().getDefaultParent()));
+                loadData();
+            }
+            else{
+                changeSource.setText("Change source for another project");
+                Maintenance.MAIN_PATH = "src/main/java";
+                loadData();
+            }
+        });
+        JPanel switchButtons = new JPanel(new BorderLayout());
         exportButton.setEnabled(false);
 
 
@@ -144,16 +153,30 @@ public class Main {
         });
         allContent.add(optionList, BorderLayout.NORTH);
         allContent.add(applet, BorderLayout.CENTER);
+        switchButtons.add(changeSource, BorderLayout.LINE_START);
+        switchButtons.add(exportButton, BorderLayout.LINE_END);
         downPanel.add(version, BorderLayout.LINE_START);
-        downPanel.add(exportButton, BorderLayout.LINE_END);
+        downPanel.add(switchButtons, BorderLayout.LINE_END);
         allContent.add(downPanel, BorderLayout.SOUTH);
         frame = new JFrame();
         frame.setTitle("Projekt - Inżynieria oprogramowania");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(screenSize.width, screenSize.height);
-        frame.setResizable(false);
         frame.add(allContent);
         frame.setContentPane(allContent);
         frame.setVisible(true);
+    }
+    private static void loadData(){
+        InformationGenerator informationGenerator = new InformationGenerator();
+        methodsRelations = informationGenerator.getMethodsDependency();
+        methodsWeights = informationGenerator.getMethodsWeights();
+
+        packagesRelations = informationGenerator.getPackagesDependency();
+        packagesWeights = informationGenerator.getPackagesWeights();
+
+        filesRelations = informationGenerator.getFilesDependency();
+        filesWeights = informationGenerator.getFilesWeights();
+
+        filesMethodsRelations = informationGenerator.getFilesMethodsDependency();
     }
 }

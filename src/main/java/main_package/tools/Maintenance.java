@@ -13,7 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Maintenance {
     //\D:\Pobrane\test\Evolution-Generator-master\src
-    public final static String MAIN_PATH = "D:\\Pobrane\\test\\Evolution-Generator-master\\src";
+    //public static String MAIN_PATH = "path for another project";
+    public static String MAIN_PATH = "src/main/java";
     private final static String GIT_DIR = System.getProperty("user.dir") + "\\.git";
     private final static String MAJOR_VERSION = "1.";
     private final static String MINOR_VERSION = "7."; //w zaleznosci która fazę robimy
