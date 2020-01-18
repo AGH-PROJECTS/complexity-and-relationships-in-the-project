@@ -4,7 +4,11 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.ConditionalExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
+import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
@@ -30,6 +34,7 @@ public class InformationGenerator {
     private Map<String, Integer> methodsWeights;
     private Map<String, Integer> filesWeights;
     private Map<String, Map<String, Integer>> methodsRelations;
+    private Map<String, Integer> methodsComplexity;
 
     private Map<String, Map<String, AtomicInteger>> filesDependency;
     private Map<String, Map<String, AtomicInteger>> methodsDependency;
@@ -40,6 +45,7 @@ public class InformationGenerator {
         this.packagesWeights = new HashMap<>();
         this.methodsWeights = new HashMap<>();
         this.filesWeights = new HashMap<>();
+        this.methodsComplexity = new HashMap<>();
 
         try {
             specifySymbolsSolver();
@@ -57,6 +63,7 @@ public class InformationGenerator {
         this.methodsDependency = getMethodsRelations();
         this.packagesDependency = getPackagesRelations();
         this.filesMethodsDependency = getMethodsFilesRelations();
+        this.methodsComplexity = getMethodsComplexity();
     }
 
     //konfiguracja typeSolvera
@@ -191,7 +198,6 @@ public class InformationGenerator {
                 cu.findAll(MethodDeclaration.class).forEach(mcd -> {
                     MethodNameSearching methodNameSearching = new MethodNameSearching(packagesName);
                     mcd.accept(methodNameSearching, null);
-
                     if (methodNameSearching.getMapSize() > 0) {
                         methodsRelationsMap.put(mcd.resolve().getName(), methodNameSearching.getMethodMap());
                     }
@@ -204,7 +210,46 @@ public class InformationGenerator {
         addSizeInformation(methodsRelationsMap, methodsWeights);
         return methodsRelationsMap;
     }
+    private Map<String,Integer> getMethodsComplexity() {
+        Map<String,Integer> methodsComplexityMap=new HashMap<>();
+        classes.forEach(file -> {
+            try {
+                CompilationUnit cu = StaticJavaParser.parse(file);
+                cu.findAll(MethodDeclaration.class).forEach(mcd -> {
+                    Integer complexity = 1;
+                    if (mcd.getBody().isPresent()) {
+                        complexity += mcd.getBody().get().findAll(IfStmt.class).size();
+                        Integer returns = mcd.getBody().get().findAll(ReturnStmt.class).size();
+                        if (returns > 0) returns -= 1;
+                        complexity += returns;
+                        complexity += mcd.getBody().get().findAll(SwitchEntry.class).size();
+                        complexity += mcd.getBody().get().findAll(ForStmt.class).size();
+                        complexity += mcd.getBody().get().findAll(ForEachStmt.class).size();
+                        complexity += mcd.getBody().get().findAll(WhileStmt.class).size();
+                        complexity += mcd.getBody().get().findAll(DoStmt.class).size();
+                        complexity += mcd.getBody().get().findAll(ConditionalExpr.class).size();
+                        complexity += mcd.getBody().get().findAll(CatchClause.class).size();
+                        complexity += mcd.getBody().get().findAll(ThrowStmt.class).size();
+                        List<BinaryExpr> expressionList = mcd.getBody().get().findAll(BinaryExpr.class);
+                        for (BinaryExpr expression : expressionList)
+                            if (expression.getOperator() == BinaryExpr.Operator.AND ||
+                                    expression.getOperator() == BinaryExpr.Operator.OR ||
+                                    expression.getOperator() == BinaryExpr.Operator.BINARY_AND ||
+                                    expression.getOperator() == BinaryExpr.Operator.BINARY_OR ||
+                                    expression.getOperator() == BinaryExpr.Operator.XOR)
+                                complexity++;
 
+                    }
+                    if (complexity == 0) complexity = 1;
+                    System.out.println(mcd.resolve().getName() + ' ' + complexity.toString());
+                    methodsComplexityMap.put(mcd.resolve().getName(), complexity);
+                });
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        return methodsComplexityMap;
+    }
     //relacje miedzy plikami
     private Map<String, Map<String, AtomicInteger>> getFilesRelations() {
         Map<String, Map<String, AtomicInteger>> filesRelationsMap = new HashMap<>();
@@ -262,7 +307,7 @@ public class InformationGenerator {
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             super.visit(n, arg);
-            System.out.println(n.resolve().getQualifiedName());
+            //System.out.println(n.resolve().getQualifiedName());
             String packageLongName = n.resolve().getPackageName(); //dluga nazwa paczki
             String methodName = n.getNameAsString(); //nazwa metody
             packagesName.stream()
