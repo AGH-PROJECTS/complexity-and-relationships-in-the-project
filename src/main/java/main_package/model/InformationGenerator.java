@@ -261,6 +261,8 @@ public class InformationGenerator {
 
         @Override
         public void visit(MethodCallExpr n, Void arg) {
+            super.visit(n, arg);
+            System.out.println(n.resolve().getQualifiedName());
             String packageLongName = n.resolve().getPackageName(); //dluga nazwa paczki
             String methodName = n.getNameAsString(); //nazwa metody
             packagesName.stream()
@@ -303,6 +305,7 @@ public class InformationGenerator {
         }
         @Override
         public void visit(MethodCallExpr n, Void arg) {
+            super.visit(n, arg);
             String packageLongName = n.resolve().getPackageName(); //cala nazwa paczki
             String methodName = n.getNameAsString(); //nazwa metody
             packagesName.stream()
@@ -332,6 +335,7 @@ public class InformationGenerator {
         }
         @Override
         public void visit(MethodCallExpr n, Void arg) {
+            super.visit(n, arg);
             String packagePath = n.resolve().getPackageName();
             String fileName = n.resolve().getClassName() + ".java";
             packagesName.stream()
@@ -355,10 +359,6 @@ public class InformationGenerator {
     private void addSizeInformation(Map<String, Map<String, AtomicInteger>> mainMap, Map<String, Integer> valueMap) {
         for (Map.Entry<String, Map<String, AtomicInteger>> entry : mainMap.entrySet()) {
             Map<String, AtomicInteger> mapValue = entry.getValue();
-
-            if(!valueMap.containsKey(entry.getKey())) {
-                valueMap.put(entry.getKey(),1);
-            }
 
             for (Map.Entry<String, AtomicInteger> entryMap : mapValue.entrySet()) {
                 String name = entryMap.getKey();
