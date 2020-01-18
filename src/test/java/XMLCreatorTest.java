@@ -1,5 +1,7 @@
 import main_package.export.XMLCreator;
 import main_package.model.InformationGenerator;
+import main_package.tools.Maintenance;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -18,7 +20,7 @@ public class XMLCreatorTest {
     @BeforeClass
     public static void init() throws IOException {
         obj = new XMLCreator();
-        gen = new InformationGenerator();
+        gen = new InformationGenerator(Maintenance.MAIN_PATH);
         methodsRelations = gen.getMethodsDependency();
         filesRelations = gen.getFilesDependency();
     }

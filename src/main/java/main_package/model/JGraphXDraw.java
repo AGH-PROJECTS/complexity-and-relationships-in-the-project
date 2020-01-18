@@ -137,7 +137,11 @@ public class JGraphXDraw extends JApplet {
             vertexFilesNames.add(entry.getValue());
         }
         for(Map.Entry<String, String> entry: entrySet) {
-            vertexMethods.add((mxCell) newGraph.insertVertex(parent, null, entry.getKey(), 25, 0, 100, 50));
+            if(entry.getKey().contains("*NEW*")) {
+                vertexMethods.add((mxCell) newGraph.insertVertex(parent, null, entry.getKey(), 25, 0, 100, 50, "fillColor=#e6c35c"));
+            } else {
+                vertexMethods.add((mxCell) newGraph.insertVertex(parent, null, entry.getKey(), 25, 0, 100, 50, "fillColor=#add8e6"));
+            }
         }
         for(String vertexName: vertexFilesNames){
             vertexFiles.add((mxCell) newGraph.insertVertex(parent, null, vertexName, 25, 0,100,50));
@@ -188,8 +192,12 @@ public class JGraphXDraw extends JApplet {
         }
     }
     private void createVertex(mxGraph myGraph, Set<Map.Entry<String, Integer>> vertexEntrySet, ArrayList<mxCell> vertexList1, String vertexColor){
-        for(Map.Entry<String, Integer> entrySet : vertexEntrySet){
-            vertexList1.add((mxCell) myGraph.insertVertex(parent, null, entrySet.getKey(), 25, 0, entrySet.getValue()*75, entrySet.getValue()*35, "fillColor=" + vertexColor));
+        for(Map.Entry<String, Integer> entry : vertexEntrySet){
+            if(entry.getKey().contains("*NEW*")){
+                vertexList1.add((mxCell) myGraph.insertVertex(parent, null, entry.getKey(), 25, 0, entry.getValue()*75, entry.getValue()*35, "fillColor=#e6c35c"));
+            } else {
+                vertexList1.add((mxCell) myGraph.insertVertex(parent, null, entry.getKey(), 25, 0, entry.getValue() * 75, entry.getValue() * 35, "fillColor=" + vertexColor));
+            }
         }
     }
 }

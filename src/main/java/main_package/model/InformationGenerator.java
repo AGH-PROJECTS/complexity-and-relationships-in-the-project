@@ -24,9 +24,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static main_package.tools.Maintenance.MAIN_PATH;
-
 public class InformationGenerator {
+    private String MAIN_PATH;
     private Set<File> classes;
     private List<String> classesName;
     private Set<String> packagesName;
@@ -41,7 +40,8 @@ public class InformationGenerator {
     private Map<String, Map<String, AtomicInteger>> packagesDependency;
     private Map<String, String> filesMethodsDependency;
 
-    public InformationGenerator() {
+    public InformationGenerator(String path) {
+        this.MAIN_PATH = path;
         this.packagesWeights = new HashMap<>();
         this.methodsWeights = new HashMap<>();
         this.filesWeights = new HashMap<>();
@@ -63,7 +63,7 @@ public class InformationGenerator {
         this.methodsDependency = getMethodsRelations();
         this.packagesDependency = getPackagesRelations();
         this.filesMethodsDependency = getMethodsFilesRelations();
-        this.methodsComplexity = getMethodsComplexity();
+        //this.methodsComplexity = getMethodsComplexity();
     }
 
     //konfiguracja typeSolvera

@@ -22,6 +22,8 @@ import javax.swing.JPanel;
 import main_package.model.InformationGenerator;
 import main_package.model.JGraphXDraw;
 import main_package.tools.Maintenance;
+import main_package.tools.RevisionDifference;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -42,6 +44,13 @@ public class Main {
     private static int comboControl = 0;
 
     public static void main(String[] args) {
+        try {
+            RevisionDifference.getRepository();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         System.out.println(Maintenance.getVersionIdentifier());
         startView();
        /* try {
@@ -167,16 +176,18 @@ public class Main {
         frame.setVisible(true);
     }
     private static void loadData(){
-        InformationGenerator informationGenerator = new InformationGenerator();
-        methodsRelations = informationGenerator.getMethodsDependency();
-        methodsWeights = informationGenerator.getMethodsWeights();
+        InformationGenerator current = new InformationGenerator(Maintenance.MAIN_PATH);
+        InformationGenerator old = new InformationGenerator(RevisionDifference.PATH);
 
-        packagesRelations = informationGenerator.getPackagesDependency();
-        packagesWeights = informationGenerator.getPackagesWeights();
+        methodsRelations = RevisionDifference.findDifferences2(old.getMethodsDependency(), current.getMethodsDependency());
+        methodsWeights = RevisionDifference.findDifferences(old.getMethodsWeights(), current.getMethodsWeights());
 
-        filesRelations = informationGenerator.getFilesDependency();
-        filesWeights = informationGenerator.getFilesWeights();
+        packagesRelations = RevisionDifference.findDifferences2(old.getPackagesDependency(), current.getPackagesDependency());
+        packagesWeights = RevisionDifference.findDifferences(old.getPackagesWeights(), current.getPackagesWeights());
 
-        filesMethodsRelations = informationGenerator.getFilesMethodsDependency();
+        filesRelations = RevisionDifference.findDifferences2(old.getFilesDependency(), current.getFilesDependency());
+        filesWeights = RevisionDifference.findDifferences(old.getFilesWeights(), current.getFilesWeights());
+
+        filesMethodsRelations = RevisionDifference.findDifferences3(old.getFilesMethodsDependency(), current.getFilesMethodsDependency());
     }
 }

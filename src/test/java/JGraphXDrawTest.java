@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import main_package.model.InformationGenerator;
 import main_package.model.JGraphXDraw;
+import main_package.tools.Maintenance;
 
 public class JGraphXDrawTest {
 
@@ -20,7 +21,7 @@ public class JGraphXDrawTest {
     @BeforeClass
     public static void init() throws IOException {
         applet = new JGraphXDraw();
-        gen = new InformationGenerator();
+        gen = new InformationGenerator(Maintenance.MAIN_PATH);
         methodsRelations = gen.getMethodsDependency();
         filesRelations = gen.getFilesDependency();
     }

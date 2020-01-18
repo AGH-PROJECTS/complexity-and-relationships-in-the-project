@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import main_package.model.InformationGenerator;
+import main_package.tools.Maintenance;
 
 public class InformationGeneratorTest {
 
@@ -16,14 +17,14 @@ public class InformationGeneratorTest {
 
     @BeforeClass
     public static void init() throws IOException {
-        gen = new InformationGenerator();
+        gen = new InformationGenerator(Maintenance.MAIN_PATH);
         methodsRelations = gen.getMethodsDependency();
         filesRelations = gen.getFilesDependency();
     }
 
     @Test
     public void InformationGenerator_NotThrowIOException() {
-        gen = new InformationGenerator();
+        gen = new InformationGenerator(Maintenance.MAIN_PATH);
     }
 
     @Test
