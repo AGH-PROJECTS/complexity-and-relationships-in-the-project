@@ -151,11 +151,14 @@ public class InformationGenerator {
         }
     }
 
+    List<Map<String, Map<String, AtomicInteger>>> packagesCalledMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczka a metodami ktore sa wolane z innej metody
+    List<Map<String, Map<String, AtomicInteger>>> packagesCallingMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczkami a metodami ktore wolaja metody z innych paczek
+    List<Map<String, Integer>> packagesCalledMethodsWagesMap = new ArrayList<>();
+    List<Map<String, Integer>> packagesCallingMethodsWagesMap = new ArrayList<>();
     //relacje miedzy package
     private Map<String, Map<String, AtomicInteger>> getPackagesRelations() {
         Map<String, Map<String, AtomicInteger>> packagesRelationsMap = new HashMap<>(); //mapa relacji miedzy paczkami
-        List<Map<String, Map<String, AtomicInteger>>> packagesCalledMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczka a metodami ktore sa wolane z innej metody
-        List<Map<String, Map<String, AtomicInteger>>> packagesCallingMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczkami a metodami ktore wolaja metody z innych paczek
+
         classes.forEach(file -> {
             try {
                 CompilationUnit cu = StaticJavaParser.parse(file);
@@ -184,6 +187,19 @@ public class InformationGenerator {
                 e.printStackTrace();
             }
         });
+
+        packagesCalledMethodsRelationsMap.forEach(map->{
+            Map<String, Integer> mapToSave = new HashMap<>();
+            addSizeInformation(map, mapToSave);
+            packagesCalledMethodsWagesMap.add(mapToSave);
+        });
+
+        packagesCallingMethodsRelationsMap.forEach(map->{
+            Map<String, Integer> mapToSave = new HashMap<>();
+            addSizeInformation(map, mapToSave);
+            packagesCallingMethodsWagesMap.add(mapToSave);
+        });
+
         addSizeInformation(packagesRelationsMap, packagesWeights);
 
         return packagesRelationsMap;
@@ -442,5 +458,21 @@ public class InformationGenerator {
 
     public Map<String, String> getFilesMethodsDependency() {
         return filesMethodsDependency;
+    }
+
+    public List<Map<String, Map<String, AtomicInteger>>> getPackagesCalledMethodsRelationsMap() {
+        return packagesCalledMethodsRelationsMap;
+    }
+
+    public List<Map<String, Map<String, AtomicInteger>>> getPackagesCallingMethodsRelationsMap() {
+        return packagesCallingMethodsRelationsMap;
+    }
+
+    public List<Map<String, Integer>> getPackagesCalledMethodsWagesMap() {
+        return packagesCalledMethodsWagesMap;
+    }
+
+    public List<Map<String, Integer>> getPackagesCallingMethodsWagesMap() {
+        return packagesCallingMethodsWagesMap;
     }
 }
