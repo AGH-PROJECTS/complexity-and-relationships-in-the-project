@@ -33,15 +33,36 @@ public class RevisionDifference {
 
     public static Map<String, Map<String, AtomicInteger>> findDifferences2(Map<String, Map<String, AtomicInteger>> old, Map<String, Map<String, AtomicInteger>> current) {
         Map<String, Map<String, AtomicInteger>> diff = new HashMap<>();
+        List<String> newNames = new ArrayList<>();
         Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet = current.entrySet();
         for (Map.Entry<String, Map<String, AtomicInteger>> entry : entrySet) {
             if (!old.containsKey(entry.getKey())) {
                 diff.put("*NEW*" + entry.getKey(), entry.getValue());
+                newNames.add(entry.getKey());
             } else {
                 diff.put(entry.getKey(), entry.getValue());
             }
         }
-        return diff;
+
+        Map<String, Map<String, AtomicInteger>> diff2 = new HashMap<>();
+        Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet1 = diff.entrySet();
+        for (Map.Entry<String, Map<String, AtomicInteger>> entry : entrySet1) {
+            Map<String, AtomicInteger> sub = new HashMap<>();
+            Set<Map.Entry<String,AtomicInteger>> littleEntrySet = entry.getValue().entrySet();
+            for(Map.Entry<String, AtomicInteger> littleEntry : littleEntrySet){
+                if (newNames.contains(littleEntry.getKey())) {
+                    sub.put("*NEW*" + littleEntry.getKey(), littleEntry.getValue());
+                } else {
+                    sub.put(littleEntry.getKey(), littleEntry.getValue());
+                }
+            }
+            diff2.put(entry.getKey(), sub);
+        }
+
+
+
+
+        return diff2;
     }
 
     public static Map<String, Integer> findDifferences(Map<String, Integer> old, Map<String, Integer> current) {
