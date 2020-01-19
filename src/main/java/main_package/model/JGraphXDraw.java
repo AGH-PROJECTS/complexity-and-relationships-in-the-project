@@ -13,6 +13,7 @@ import java.awt.HeadlessException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -33,9 +34,8 @@ public class JGraphXDraw extends JApplet {
     public JGraphXDraw() throws HeadlessException {
         init();
     }
-
-    public void createGraphX(Map<String, Map<String, AtomicInteger>> projectStructure, Map<String, Integer> projectInfo, JFrame frame) {
-        if(projectStructure == null || projectInfo == null){
+    public void createGraphX(List<Map<String, Map<String, AtomicInteger>>> dataRelationsList, List<Map<String, Integer>> dataWeightsList, JFrame frame) {
+        if(dataRelationsList == null || dataWeightsList == null){
             throw new NullPointerException();
         }
 
@@ -45,79 +45,30 @@ public class JGraphXDraw extends JApplet {
 
         ArrayList<mxCell> vertexList = new ArrayList<>();
         ArrayList<mxCell> vertexList2;
+        int i=0;
+        String graphColor;
+        for(Map<String, Integer> projectInfo: dataWeightsList){
+            vertexList.clear();
 
-        Set<Map.Entry<String, Integer>> infoEntrySet = projectInfo.entrySet();
-        createVertex(newGraph, infoEntrySet, vertexList, "#add8e6");
-        vertexList2 = vertexList;
+            if(i == 0){
+                graphColor = "#add8e6";
+            }
+            else if(i == 1){
+                graphColor = "#ff5252";
+            }
+            else{
+                graphColor = "#98FB98";
+            }
+            Set<Map.Entry<String, Integer>> infoEntrySet = projectInfo.entrySet();
+            createVertex(newGraph, infoEntrySet, vertexList, graphColor);
+            vertexList2 = vertexList;
 
-        Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet = projectStructure.entrySet();
-        createEdges(newGraph, entrySet, vertexList, vertexList2, "#add8e6");
-
-        setLayout();
-        newGraph.getModel().endUpdate();
-        SwingUtilities.updateComponentTreeUI(frame);
-    }
-    public void createGraphX(Map<String, Map<String, AtomicInteger>> projectStructure1, Map<String, Map<String, AtomicInteger>> projectStructure2, Map<String, Integer> projectInfo1, Map<String, Integer> projectInfo2, JFrame frame) {
-        if(projectStructure1 == null || projectInfo1 == null || projectStructure2 == null || projectInfo2 == null){
-            throw new NullPointerException();
+            for(Map<String, Map<String, AtomicInteger>> projectStructure: dataRelationsList){
+                Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet = projectStructure.entrySet();
+                createEdges(newGraph, entrySet, vertexList, vertexList2, graphColor);
+            }
+            i++;
         }
-
-        newGraph.removeCells(newGraph.getChildVertices(newGraph.getDefaultParent()));
-
-        newGraph.getModel().beginUpdate();
-
-        ArrayList<mxCell> vertexList = new ArrayList<>();
-        ArrayList<mxCell> vertexList2;
-
-        Set<Map.Entry<String, Integer>> infoEntrySet = projectInfo1.entrySet();
-        createVertex(newGraph, infoEntrySet, vertexList, "#add8e6");
-
-        infoEntrySet = projectInfo2.entrySet();
-        createVertex(newGraph, infoEntrySet, vertexList, "#ff5252");
-
-        vertexList2 = vertexList;
-
-        Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet = projectStructure1.entrySet();
-        createEdges(newGraph, entrySet, vertexList, vertexList2, "#add8e6");
-
-        entrySet = projectStructure2.entrySet();
-        createEdges(newGraph, entrySet, vertexList, vertexList2, "#ff5252");
-
-        setLayout();
-        newGraph.getModel().endUpdate();
-        SwingUtilities.updateComponentTreeUI(frame);
-    }
-    public void createGraphX(Map<String, Map<String, AtomicInteger>> projectStructure1, Map<String, Map<String, AtomicInteger>> projectStructure2, Map<String, Map<String, AtomicInteger>> projectStructure3, Map<String, Integer> projectInfo1, Map<String, Integer> projectInfo2, Map<String, Integer> projectInfo3, JFrame frame) {
-        if(projectStructure1 == null || projectInfo1 == null || projectStructure2 == null || projectInfo2 == null || projectStructure3 == null || projectInfo3 == null){
-            throw new NullPointerException();
-        }
-
-        newGraph.removeCells(newGraph.getChildVertices(newGraph.getDefaultParent()));
-
-        newGraph.getModel().beginUpdate();
-
-        ArrayList<mxCell> vertexList = new ArrayList<>();
-        ArrayList<mxCell> vertexList2;
-
-        Set<Map.Entry<String, Integer>> infoEntrySet = projectInfo1.entrySet();
-        createVertex(newGraph, infoEntrySet, vertexList, "#add8e6");
-
-        infoEntrySet = projectInfo2.entrySet();
-        createVertex(newGraph, infoEntrySet, vertexList, "#ff5252");
-
-        infoEntrySet = projectInfo3.entrySet();
-        createVertex(newGraph, infoEntrySet, vertexList, "#98FB98");
-
-        vertexList2 = vertexList;
-
-        Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet = projectStructure1.entrySet();
-        createEdges(newGraph, entrySet, vertexList, vertexList2, "#add8e6");
-
-        entrySet = projectStructure2.entrySet();
-        createEdges(newGraph, entrySet, vertexList, vertexList2, "#ff5252");
-
-        entrySet = projectStructure3.entrySet();
-        createEdges(newGraph, entrySet, vertexList, vertexList2, "#98FB98");
 
         setLayout();
         newGraph.getModel().endUpdate();

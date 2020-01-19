@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,6 +43,8 @@ public class Main {
     private static Map<String, Integer> filesWeights;
     private static Map<String, Integer> methodsWeights;
     private static Map<String, Integer> packagesWeights;
+    private static List<Map<String, Map<String, AtomicInteger>>> relationsList = new ArrayList<>();
+    private static List<Map<String, Integer>> weightsList = new ArrayList<>();
     private static int comboControl = 0;
 
     public static void main(String[] args) {
@@ -131,25 +135,63 @@ public class Main {
                 comboControl = optionList.getSelectedIndex();
                 switch (comboControl) {
                     case 0:
-                        applet.createGraphX(filesRelations, filesWeights, frame);
+                        relationsList.clear();
+                        weightsList.clear();
+                        relationsList.add(filesRelations);
+                        weightsList.add(filesWeights);
+                        applet.createGraphX(relationsList, weightsList, frame);
                         break;
                     case 1:
-                        applet.createGraphX(methodsRelations, methodsWeights, frame);
+                        relationsList.clear();
+                        weightsList.clear();
+                        relationsList.add(methodsRelations);
+                        weightsList.add(methodsWeights);
+                        applet.createGraphX(relationsList, weightsList, frame);
                         break;
                     case 2:
-                        applet.createGraphX(packagesRelations, packagesWeights, frame);
+                        relationsList.clear();
+                        weightsList.clear();
+                        relationsList.add(packagesRelations);
+                        weightsList.add(packagesWeights);
+                        applet.createGraphX(relationsList, weightsList, frame);
                         break;
                     case 3:
-                        applet.createGraphX(filesRelations, methodsRelations, filesWeights, methodsWeights, frame);
+                        relationsList.clear();
+                        weightsList.clear();
+                        relationsList.add(filesRelations);
+                        relationsList.add(methodsRelations);
+                        weightsList.add(filesWeights);
+                        weightsList.add(methodsWeights);
+                        applet.createGraphX(relationsList, weightsList, frame);
                         break;
                     case 4:
-                        applet.createGraphX(filesRelations, packagesRelations, filesWeights, packagesWeights, frame);
+                        relationsList.clear();
+                        weightsList.clear();
+                        relationsList.add(filesRelations);
+                        relationsList.add(packagesRelations);
+                        weightsList.add(filesWeights);
+                        weightsList.add(packagesWeights);
+                        applet.createGraphX(relationsList, weightsList, frame);
                         break;
                     case 5:
-                        applet.createGraphX(methodsRelations, packagesRelations, methodsWeights, packagesWeights, frame);
+                        relationsList.clear();
+                        weightsList.clear();
+                        relationsList.add(methodsRelations);
+                        relationsList.add(packagesRelations);
+                        weightsList.add(methodsWeights);
+                        weightsList.add(packagesWeights);
+                        applet.createGraphX(relationsList, weightsList, frame);
                         break;
                     case 6:
-                        applet.createGraphX(filesRelations, methodsRelations, packagesRelations, filesWeights, methodsWeights, packagesWeights, frame);
+                        relationsList.clear();
+                        weightsList.clear();
+                        relationsList.add(filesRelations);
+                        relationsList.add(methodsRelations);
+                        relationsList.add(packagesRelations);
+                        weightsList.add(filesWeights);
+                        weightsList.add(methodsWeights);
+                        weightsList.add(packagesWeights);
+                        applet.createGraphX(relationsList, weightsList, frame);
                         break;
                     case 7:
                         applet.createGraphX(filesMethodsRelations, frame);
