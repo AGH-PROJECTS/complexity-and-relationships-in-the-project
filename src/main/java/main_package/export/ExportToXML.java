@@ -63,28 +63,32 @@ public class ExportToXML {
 
         Map<String, Integer> graphElementsWithIds = new HashMap();
 
-        for (Map.Entry<String, Integer> entry : weights.entrySet()) {
-            graphElementsWithIds.put(entry.getKey(), graphElementsIds);
+        for (Map.Entry<String, Map<String, AtomicInteger>> relation: relations.entrySet()) {
+            for (Map.Entry<String, AtomicInteger> entry : relation.getValue().entrySet()) {
+                if (graphElementsWithIds.containsKey(entry))
+                    continue;
+                graphElementsWithIds.put(entry.getKey(), graphElementsIds);
+                graphElementsIds++;
+            }
+            if (graphElementsWithIds.containsKey(relation.getKey()))
+                continue;
+            graphElementsWithIds.put(relation.getKey(), graphElementsIds);
             graphElementsIds++;
         }
 
-        for (Map.Entry<String, Integer> entry: weights.entrySet()) {
+        for (Map.Entry<String, Integer> entry: graphElementsWithIds.entrySet()) {
             exportedXML.e("Class")
-                    .a("Id", Integer.toString(graphElementsWithIds.get(entry.getKey())))
+                    .a("Id", Integer.toString(entry.getValue()))
                     .a("Name", entry.getKey())
                     .up();
         }
 
         relations.forEach((k, v) -> {
             for (Map.Entry<String, AtomicInteger> entry : v.entrySet()) {
-                Integer tmp = graphElementsWithIds.get(entry.getKey());
-                System.out.println(tmp+ " "+entry.getValue());
-                if(tmp==null)
-                    continue;
                 exportedXML.e("Usage")
                         .a("From", Integer.toString(graphElementsWithIds.get(k)))
                         .a("Id", Integer.toString(graphElementsIds))
-                        .a("To", Integer.toString(tmp))
+                        .a("To", Integer.toString(graphElementsWithIds.get(entry.getKey())))
                         .up();
                 graphElementsIds++;
             }
