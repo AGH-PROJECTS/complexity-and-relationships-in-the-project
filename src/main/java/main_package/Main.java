@@ -57,7 +57,7 @@ public class Main {
         JGraphXDraw applet = new JGraphXDraw();
 
         String[] optionStrings = {"Graf zależności między plikami", "Graf relacji między funkcjami(metodami)",
-                "Graf relacji między modułami logicznymi", "Graf 1 i 2", "Graf 1 i 3", "Graf 2 i 3", "Wszystkie grafy", "Graf relacji między plikami," +
+                "Graf relacji między modułami logicznymi", "Graf 1 i 2", "Graf 1 i 3", "Graf 2 i 3", "Wszystkie grafy", "Graf relacji między plikami, " +
                 "a metodami(funkcjami)"};
 
         JLabel version = new JLabel("Version: " + Maintenance.VERSION_IDENTIFIER);

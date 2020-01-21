@@ -113,20 +113,15 @@ public class ExportToXML {
                     .up();
         }
 
-//        relations.forEach((k, v) -> {
-//            for (Map.Entry<String, AtomicInteger> entry : v.entrySet()) {
-//                Integer tmp = graphElementsWithIds.get(entry.getKey());
-//                System.out.println(tmp+ " "+entry.getValue());
-//                if(tmp==null)
-//                    continue;
-//                exportedXML.e("Usage")
-//                        .a("From", Integer.toString(graphElementsWithIds.get(k)))
-//                        .a("Id", Integer.toString(graphElementsIds))
-//                        .a("To", Integer.toString(tmp))
-//                        .up();
-//                graphElementsIds++;
-//            }
-//        });
+        for (Map.Entry<String, String> entry: relations.entrySet()){
+            exportedXML.e("Usage")
+                    .a("From", Integer.toString(graphElementsWithIds.get(entry.getValue())))
+                    .a("Id", Integer.toString(graphElementsIds))
+                    .a("To", Integer.toString(graphElementsWithIds.get(entry.getKey())))
+                    .up();
+            graphElementsIds++;
+        }
+
     }
 }
 
