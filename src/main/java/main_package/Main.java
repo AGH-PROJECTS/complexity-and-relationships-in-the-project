@@ -1,14 +1,9 @@
 package main_package;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,17 +16,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import main_package.export.ExportToXML;
 import main_package.model.InformationGenerator;
 import main_package.model.JGraphXDraw;
 import main_package.tools.Maintenance;
 import main_package.tools.RevisionDifference;
 
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 public class Main {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -57,37 +48,6 @@ public class Main {
         }
         System.out.println(Maintenance.getVersionIdentifier());
         startView();
-       /* try {
-            XMLCreator xml = new XMLCreator();
-            xml.addElements(packagesRelations, packagesWeights);
-            XMLBuilder2 builder = xml.getExportedXML();
-            PrintWriter writer = new PrintWriter("package.xml");
-            Properties properties = xml.getProperties();
-            builder.toWriter(writer, properties);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            XMLCreator xml = new XMLCreator();
-            xml.addElements(filesRelations, filesWeights);
-            XMLBuilder2 builder = xml.getExportedXML();
-            PrintWriter writer = new PrintWriter("files.xml");
-            Properties properties = xml.getProperties();
-            builder.toWriter(writer, properties);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            XMLCreator xml = new XMLCreator();
-            xml.addElements(methodsRelations, methodsWeights);
-            XMLBuilder2 builder = xml.getExportedXML();
-            PrintWriter writer = new PrintWriter("methods.xml");
-            Properties properties = xml.getProperties();
-            builder.toWriter(writer, properties);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-*/
     }
 
     private static void startView() {
@@ -96,9 +56,9 @@ public class Main {
 
         JGraphXDraw applet = new JGraphXDraw();
 
-        String[] optionStrings = {"Graf zależności między plikami", "Graf relacji między funkcjami/metodami",
+        String[] optionStrings = {"Graf zależności między plikami", "Graf relacji między funkcjami(metodami)",
                 "Graf relacji między modułami logicznymi", "Graf 1 i 2", "Graf 1 i 3", "Graf 2 i 3", "Wszystkie grafy", "Graf relacji między plikami," +
-                "a metodami/funkcjami"};
+                "a metodami(funkcjami)"};
 
         JLabel version = new JLabel("Version: " + Maintenance.VERSION_IDENTIFIER);
 
@@ -106,8 +66,15 @@ public class Main {
         JButton exportButton = new JButton("Export selected graph!");
         exportButton.addActionListener(e -> {
             System.out.print(e.getActionCommand());
-            //tutaj funkcja exportujaca graf
+            ExportToXML exportGraph;
+            if(comboControl==0||comboControl==1||comboControl==2||comboControl==3||comboControl==4||comboControl==5||comboControl==6)
+                exportGraph = new ExportToXML(relationsList, weightsList, optionStrings[comboControl]);
+            else if (comboControl==7)
+                exportGraph = new ExportToXML(filesMethodsRelations, optionStrings[comboControl]);
+            else
+                System.out.println("Nothing to export!");
         });
+
         JButton changeSource = new JButton("Change source for another project");
         changeSource.addActionListener(e -> {
             if(e.getActionCommand().contains("Change source for another project")){
@@ -202,6 +169,7 @@ public class Main {
                 }
             }
         });
+
         allContent.add(optionList, BorderLayout.NORTH);
         allContent.add(applet, BorderLayout.CENTER);
         switchButtons.add(changeSource, BorderLayout.LINE_START);
@@ -216,6 +184,7 @@ public class Main {
         frame.add(allContent);
         frame.setContentPane(allContent);
         frame.setVisible(true);
+
     }
     private static void loadData(){
         InformationGenerator current = new InformationGenerator(Maintenance.MAIN_PATH);
