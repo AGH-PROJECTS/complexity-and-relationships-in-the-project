@@ -2,12 +2,10 @@ package main_package.model;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.ConditionalExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
@@ -33,6 +31,11 @@ public class InformationGenerator {
     private Map<String, Integer> methodsWeights;
     private Map<String, Integer> filesWeights;
     private Map<String, Map<String, Integer>> methodsRelations;
+
+    public Map<String, Integer> getMethodsComplexity() {
+        return methodsComplexity;
+    }
+
     private Map<String, Integer> methodsComplexity;
 
     private Map<String, Map<String, AtomicInteger>> filesDependency;
@@ -63,9 +66,8 @@ public class InformationGenerator {
         this.methodsDependency = getMethodsRelations();
         this.packagesDependency = getPackagesRelations();
         this.filesMethodsDependency = getMethodsFilesRelations();
-        //this.methodsComplexity = getMethodsComplexity();
+        this.methodsComplexity = returnMethodsComplexity();
     }
-
     //konfiguracja typeSolvera
     private void specifySymbolsSolver() throws IOException {
         TypeSolver typeSolver = new JavaParserTypeSolver(MAIN_PATH);
@@ -226,7 +228,7 @@ public class InformationGenerator {
         addSizeInformation(methodsRelationsMap, methodsWeights);
         return methodsRelationsMap;
     }
-    private Map<String,Integer> getMethodsComplexity() {
+    public Map<String,Integer> returnMethodsComplexity() {
         Map<String,Integer> methodsComplexityMap=new HashMap<>();
         classes.forEach(file -> {
             try {
@@ -257,7 +259,7 @@ public class InformationGenerator {
 
                     }
                     if (complexity == 0) complexity = 1;
-                    System.out.println(mcd.resolve().getName() + ' ' + complexity.toString());
+                    //System.out.println(mcd.resolve().getName() + ' ' + complexity.toString());
                     methodsComplexityMap.put(mcd.resolve().getName(), complexity);
                 });
             } catch (FileNotFoundException e) {
@@ -475,4 +477,5 @@ public class InformationGenerator {
     public List<Map<String, Integer>> getPackagesCallingMethodsWagesMap() {
         return packagesCallingMethodsWagesMap;
     }
+
 }

@@ -34,6 +34,7 @@ public class Main {
     private static Map<String, Integer> filesWeights;
     private static Map<String, Integer> methodsWeights;
     private static Map<String, Integer> packagesWeights;
+    private static Map<String, Integer> methodsComplexity;
     private static List<Map<String, Map<String, AtomicInteger>>> relationsList = new ArrayList<>();
     private static List<Map<String, Integer>> weightsList = new ArrayList<>();
     private static int comboControl = 0;
@@ -106,21 +107,21 @@ public class Main {
                         weightsList.clear();
                         relationsList.add(filesRelations);
                         weightsList.add(filesWeights);
-                        applet.createGraphX(relationsList, weightsList, frame);
+                        applet.createGraphX(relationsList, weightsList, methodsComplexity, frame);
                         break;
                     case 1:
                         relationsList.clear();
                         weightsList.clear();
                         relationsList.add(methodsRelations);
                         weightsList.add(methodsWeights);
-                        applet.createGraphX(relationsList, weightsList, frame);
+                        applet.createGraphX(relationsList, weightsList, methodsComplexity, frame);
                         break;
                     case 2:
                         relationsList.clear();
                         weightsList.clear();
                         relationsList.add(packagesRelations);
                         weightsList.add(packagesWeights);
-                        applet.createGraphX(relationsList, weightsList, frame);
+                        applet.createGraphX(relationsList, weightsList, methodsComplexity, frame);
                         break;
                     case 3:
                         relationsList.clear();
@@ -129,7 +130,7 @@ public class Main {
                         relationsList.add(methodsRelations);
                         weightsList.add(filesWeights);
                         weightsList.add(methodsWeights);
-                        applet.createGraphX(relationsList, weightsList, frame);
+                        applet.createGraphX(relationsList, weightsList, methodsComplexity, frame);
                         break;
                     case 4:
                         relationsList.clear();
@@ -138,7 +139,7 @@ public class Main {
                         relationsList.add(packagesRelations);
                         weightsList.add(filesWeights);
                         weightsList.add(packagesWeights);
-                        applet.createGraphX(relationsList, weightsList, frame);
+                        applet.createGraphX(relationsList, weightsList, methodsComplexity, frame);
                         break;
                     case 5:
                         relationsList.clear();
@@ -147,7 +148,7 @@ public class Main {
                         relationsList.add(packagesRelations);
                         weightsList.add(methodsWeights);
                         weightsList.add(packagesWeights);
-                        applet.createGraphX(relationsList, weightsList, frame);
+                        applet.createGraphX(relationsList, weightsList, methodsComplexity, frame);
                         break;
                     case 6:
                         relationsList.clear();
@@ -158,7 +159,7 @@ public class Main {
                         weightsList.add(filesWeights);
                         weightsList.add(methodsWeights);
                         weightsList.add(packagesWeights);
-                        applet.createGraphX(relationsList, weightsList, frame);
+                        applet.createGraphX(relationsList, weightsList, methodsComplexity, frame);
                         break;
                     case 7:
                         applet.createGraphX(filesMethodsRelations, frame);
@@ -190,8 +191,10 @@ public class Main {
         InformationGenerator current = new InformationGenerator(Maintenance.MAIN_PATH);
         InformationGenerator old = new InformationGenerator(RevisionDifference.PATH);
 
+
         methodsRelations = RevisionDifference.findDifferences2(old.getMethodsDependency(), current.getMethodsDependency());
         methodsWeights = RevisionDifference.findDifferences(old.getMethodsWeights(), current.getMethodsWeights());
+        methodsComplexity = current.getMethodsComplexity();
 
         packagesRelations = RevisionDifference.findDifferences2(old.getPackagesDependency(), current.getPackagesDependency());
         packagesWeights = RevisionDifference.findDifferences(old.getPackagesWeights(), current.getPackagesWeights());

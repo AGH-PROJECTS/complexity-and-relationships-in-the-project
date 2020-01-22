@@ -37,7 +37,7 @@ public class JGraphXDrawTest {
 
     @Test(expected = NullPointerException.class)
     public void createGraphX_1_ThrowNullPointerException(){
-        applet.createGraphX(null,null ,null);
+        applet.createGraphX(null,null ,null, null);
     }
 
     /*@Test(expected = NullPointerException.class)
