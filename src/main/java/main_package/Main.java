@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,7 @@ import main_package.tools.Maintenance;
 import main_package.tools.RevisionDifference;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.util.IO;
 
 public class Main {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -41,8 +44,11 @@ public class Main {
     private static RevisionDifference revisionDifference;
 
     public static void main(String[] args) {
+        Maintenance.getDataFromFile();
+
         try {
-            revisionDifference = new RevisionDifference("https://github.com/dawidkruczek/projectIO.git");
+
+            revisionDifference = new RevisionDifference(Maintenance.OUR_SOURCE_GIT);
             revisionDifference.getRepository();
         } catch (GitAPIException e) {
             e.printStackTrace();
@@ -92,16 +98,16 @@ public class Main {
             if(e.getActionCommand().contains("Change source for another project")){
                 changeSource.setText("Change source for your project");
                 //Maintenance.MAIN_PATH = "path to another project";
-                loadNewRepository("https://github.com/maciejsikora2302/Evolution-Generator.git");
-                revisionDifference.setPATH("\\src");
+                loadNewRepository(Maintenance.EXTERNAL_SOURCE_GIT);
+                revisionDifference.setPATH(Maintenance.SRC);
                 applet.getNewGraph().removeCells(applet.getNewGraph().getChildVertices(applet.getNewGraph().getDefaultParent()));
                 loadData();
             }
             else{
                 changeSource.setText("Change source for another project");
                 //Maintenance.MAIN_PATH = "src/main/java";
-                loadNewRepository("https://github.com/dawidkruczek/projectIO.git");
-                revisionDifference.setPATH("\\src\\main\\java");
+                loadNewRepository(Maintenance.OUR_SOURCE_GIT);
+                revisionDifference.setPATH(Maintenance.SRC_FULL);
                 applet.getNewGraph().removeCells(applet.getNewGraph().getChildVertices(applet.getNewGraph().getDefaultParent()));
                 loadData();
             }
