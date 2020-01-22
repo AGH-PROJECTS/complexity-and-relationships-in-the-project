@@ -16,7 +16,7 @@ public class InformationGeneratorTest {
     private static Map<String, Map<String, AtomicInteger>> methodsRelations;
 
     @BeforeClass
-    public static void init() throws IOException {
+    public static void init() {
         gen = new InformationGenerator(Maintenance.MAIN_PATH);
         methodsRelations = gen.getMethodsDependency();
         filesRelations = gen.getFilesDependency();
@@ -28,33 +28,38 @@ public class InformationGeneratorTest {
     }
 
     @Test
-    public void getMethodsRelations_NotNull() throws IOException {
+    public void getMethodsRelations_NotNull() {
         Assert.assertNotNull(methodsRelations);
     }
 
     @Test
-    public void getMethodsWeights_NotNull() throws IOException {
+    public void getMethodsWeights_NotNull() {
         Assert.assertNotNull(gen.getMethodsWeights());
     }
 
     @Test
-    public void getPackagesRelations_NotNull() throws IOException {
+    public void getPackagesRelations_NotNull() {
         Assert.assertNotNull(gen.getPackagesDependency());
     }
 
     @Test
-    public void getPackagesWeights_NotNull() throws IOException {
+    public void getPackagesWeights_NotNull() {
         Assert.assertNotNull(gen.getPackagesWeights());
     }
 
     @Test
-    public void getFilesRelations_NotNull() throws IOException {
+    public void getFilesRelations_NotNull() {
         Assert.assertNotNull(filesRelations);
     }
 
     @Test
-    public void getFilesWeights_NotNull() throws IOException {
+    public void getFilesWeights_NotNull() {
         Assert.assertNotNull(gen.getFilesWeights());
+    }
+
+    @Test
+    public void getMethodsComplexity_NotNull() {
+        Assert.assertNotNull(gen.getMethodsComplexity());
     }
 
 }

@@ -206,7 +206,6 @@ public class Main {
 
     }
     private static void loadData(){
-        //InformationGenerator current = new InformationGenerator(Maintenance.MAIN_PATH);
         InformationGenerator current = new InformationGenerator(revisionDifference.PATH);
         try {
             revisionDifference.goToPreviousMerge();

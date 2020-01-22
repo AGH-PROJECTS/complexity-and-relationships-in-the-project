@@ -16,23 +16,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RevisionDifference {
     private static String RESOURCES;
-    public static String PATH;
+    public String PATH;
     private String REMOTE_REPOSITORY;
     private static Iterable<RevCommit> logs;
     private static Git git;
     private static int i = 0;
 
     public RevisionDifference(String remoteRepo) {
+        if(remoteRepo == null) {
+            throw new NullPointerException();
+        }
         RESOURCES = System.getProperty("user.dir") + "\\src\\main\\resources\\downloads\\clone_" + i++;
         PATH = RESOURCES + "\\src\\main\\java";
         this.REMOTE_REPOSITORY = remoteRepo;
+        File file = new File(System.getProperty("user.dir") + "\\src\\main\\resources\\downloads");
+        if (!file.exists())
+            file.mkdir();
     }
 
     public void setPATH(String PATH) {
-        RevisionDifference.PATH = RESOURCES + PATH;
+        this.PATH = RESOURCES + PATH;
     }
 
     public Map<String,String> findDifferences3(Map<String, String> old, Map<String,String> current){
+        if(old == null || current == null) {
+            throw new NullPointerException();
+        }
+
         Map<String, String> diff = new HashMap<>();
         Set<Map.Entry<String, String>> entrySet = current.entrySet();
         for (Map.Entry<String, String> entry : entrySet) {
@@ -46,6 +56,10 @@ public class RevisionDifference {
     }
 
     public Map<String, Map<String, AtomicInteger>> findDifferences2(Map<String, Map<String, AtomicInteger>> old, Map<String, Map<String, AtomicInteger>> current) {
+        if(old == null || current == null) {
+            throw new NullPointerException();
+        }
+
         Set<String> oldOnes = new LinkedHashSet<>();
 
         for (Map.Entry<String, Map<String, AtomicInteger>> entry : old.entrySet()) {
@@ -73,6 +87,10 @@ public class RevisionDifference {
     }
 
     public Map<String, Integer> findDifferences(Map<String, Integer> old, Map<String, Integer> current) {
+        if(old == null || current == null) {
+            throw new NullPointerException();
+    }
+
         Map<String, Integer> diff = new HashMap<>();
         Set<Map.Entry<String, Integer>> entrySet = current.entrySet();
         for (Map.Entry<String, Integer> entry : entrySet) {

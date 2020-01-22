@@ -7,6 +7,7 @@ import org.junit.runners.Suite;
         ExportToXMLTest.class,
         JGraphXDrawTest.class,
         MaintenanceTest.class,
+        RevisionDifferenceTest.class,
         MainTest.class
 })
 
