@@ -2,9 +2,11 @@ package main_package.model;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.ConditionalExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
@@ -20,9 +22,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static main_package.tools.Maintenance.MAIN_PATH;
-
 public class InformationGenerator {
+    private String MAIN_PATH;
     private Set<File> classes;
     private List<String> classesName;
     private Set<String> packagesName;
@@ -31,15 +32,23 @@ public class InformationGenerator {
     private Map<String, Integer> filesWeights;
     private Map<String, Map<String, Integer>> methodsRelations;
 
+    public Map<String, Integer> getMethodsComplexity() {
+        return methodsComplexity;
+    }
+
+    private Map<String, Integer> methodsComplexity;
+
     private Map<String, Map<String, AtomicInteger>> filesDependency;
     private Map<String, Map<String, AtomicInteger>> methodsDependency;
     private Map<String, Map<String, AtomicInteger>> packagesDependency;
     private Map<String, String> filesMethodsDependency;
 
-    public InformationGenerator() {
+    public InformationGenerator(String path) {
+        this.MAIN_PATH = path;
         this.packagesWeights = new HashMap<>();
         this.methodsWeights = new HashMap<>();
         this.filesWeights = new HashMap<>();
+        this.methodsComplexity = new HashMap<>();
 
         try {
             specifySymbolsSolver();
@@ -57,8 +66,8 @@ public class InformationGenerator {
         this.methodsDependency = getMethodsRelations();
         this.packagesDependency = getPackagesRelations();
         this.filesMethodsDependency = getMethodsFilesRelations();
+        this.methodsComplexity = returnMethodsComplexity();
     }
-
     //konfiguracja typeSolvera
     private void specifySymbolsSolver() throws IOException {
         TypeSolver typeSolver = new JavaParserTypeSolver(MAIN_PATH);
@@ -144,11 +153,14 @@ public class InformationGenerator {
         }
     }
 
+    List<Map<String, Map<String, AtomicInteger>>> packagesCalledMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczka a metodami ktore sa wolane z innej metody
+    List<Map<String, Map<String, AtomicInteger>>> packagesCallingMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczkami a metodami ktore wolaja metody z innych paczek
+    List<Map<String, Integer>> packagesCalledMethodsWagesMap = new ArrayList<>();
+    List<Map<String, Integer>> packagesCallingMethodsWagesMap = new ArrayList<>();
     //relacje miedzy package
     private Map<String, Map<String, AtomicInteger>> getPackagesRelations() {
         Map<String, Map<String, AtomicInteger>> packagesRelationsMap = new HashMap<>(); //mapa relacji miedzy paczkami
-        List<Map<String, Map<String, AtomicInteger>>> packagesCalledMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczka a metodami ktore sa wolane z innej metody
-        List<Map<String, Map<String, AtomicInteger>>> packagesCallingMethodsRelationsMap = new ArrayList<>(); //lista map relacji miedzy paczkami a metodami ktore wolaja metody z innych paczek
+
         classes.forEach(file -> {
             try {
                 CompilationUnit cu = StaticJavaParser.parse(file);
@@ -177,6 +189,19 @@ public class InformationGenerator {
                 e.printStackTrace();
             }
         });
+
+        packagesCalledMethodsRelationsMap.forEach(map->{
+            Map<String, Integer> mapToSave = new HashMap<>();
+            addSizeInformation(map, mapToSave);
+            packagesCalledMethodsWagesMap.add(mapToSave);
+        });
+
+        packagesCallingMethodsRelationsMap.forEach(map->{
+            Map<String, Integer> mapToSave = new HashMap<>();
+            addSizeInformation(map, mapToSave);
+            packagesCallingMethodsWagesMap.add(mapToSave);
+        });
+
         addSizeInformation(packagesRelationsMap, packagesWeights);
 
         return packagesRelationsMap;
@@ -191,7 +216,6 @@ public class InformationGenerator {
                 cu.findAll(MethodDeclaration.class).forEach(mcd -> {
                     MethodNameSearching methodNameSearching = new MethodNameSearching(packagesName);
                     mcd.accept(methodNameSearching, null);
-
                     if (methodNameSearching.getMapSize() > 0) {
                         methodsRelationsMap.put(mcd.resolve().getName(), methodNameSearching.getMethodMap());
                     }
@@ -204,7 +228,46 @@ public class InformationGenerator {
         addSizeInformation(methodsRelationsMap, methodsWeights);
         return methodsRelationsMap;
     }
+    public Map<String,Integer> returnMethodsComplexity() {
+        Map<String,Integer> methodsComplexityMap=new HashMap<>();
+        classes.forEach(file -> {
+            try {
+                CompilationUnit cu = StaticJavaParser.parse(file);
+                cu.findAll(MethodDeclaration.class).forEach(mcd -> {
+                    Integer complexity = 1;
+                    if (mcd.getBody().isPresent()) {
+                        complexity += mcd.getBody().get().findAll(IfStmt.class).size();
+                        Integer returns = mcd.getBody().get().findAll(ReturnStmt.class).size();
+                        if (returns > 0) returns -= 1;
+                        complexity += returns;
+                        complexity += mcd.getBody().get().findAll(SwitchEntry.class).size();
+                        complexity += mcd.getBody().get().findAll(ForStmt.class).size();
+                        complexity += mcd.getBody().get().findAll(ForEachStmt.class).size();
+                        complexity += mcd.getBody().get().findAll(WhileStmt.class).size();
+                        complexity += mcd.getBody().get().findAll(DoStmt.class).size();
+                        complexity += mcd.getBody().get().findAll(ConditionalExpr.class).size();
+                        complexity += mcd.getBody().get().findAll(CatchClause.class).size();
+                        complexity += mcd.getBody().get().findAll(ThrowStmt.class).size();
+                        List<BinaryExpr> expressionList = mcd.getBody().get().findAll(BinaryExpr.class);
+                        for (BinaryExpr expression : expressionList)
+                            if (expression.getOperator() == BinaryExpr.Operator.AND ||
+                                    expression.getOperator() == BinaryExpr.Operator.OR ||
+                                    expression.getOperator() == BinaryExpr.Operator.BINARY_AND ||
+                                    expression.getOperator() == BinaryExpr.Operator.BINARY_OR ||
+                                    expression.getOperator() == BinaryExpr.Operator.XOR)
+                                complexity++;
 
+                    }
+                    if (complexity == 0) complexity = 1;
+                    //System.out.println(mcd.resolve().getName() + ' ' + complexity.toString());
+                    methodsComplexityMap.put(mcd.resolve().getName(), complexity);
+                });
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        return methodsComplexityMap;
+    }
     //relacje miedzy plikami
     private Map<String, Map<String, AtomicInteger>> getFilesRelations() {
         Map<String, Map<String, AtomicInteger>> filesRelationsMap = new HashMap<>();
@@ -261,8 +324,6 @@ public class InformationGenerator {
 
         @Override
         public void visit(MethodCallExpr n, Void arg) {
-            super.visit(n, arg);
-            System.out.println(n.resolve().getQualifiedName());
             String packageLongName = n.resolve().getPackageName(); //dluga nazwa paczki
             String methodName = n.getNameAsString(); //nazwa metody
             packagesName.stream()
@@ -305,7 +366,6 @@ public class InformationGenerator {
         }
         @Override
         public void visit(MethodCallExpr n, Void arg) {
-            super.visit(n, arg);
             String packageLongName = n.resolve().getPackageName(); //cala nazwa paczki
             String methodName = n.getNameAsString(); //nazwa metody
             packagesName.stream()
@@ -335,7 +395,6 @@ public class InformationGenerator {
         }
         @Override
         public void visit(MethodCallExpr n, Void arg) {
-            super.visit(n, arg);
             String packagePath = n.resolve().getPackageName();
             String fileName = n.resolve().getClassName() + ".java";
             packagesName.stream()
@@ -359,6 +418,10 @@ public class InformationGenerator {
     private void addSizeInformation(Map<String, Map<String, AtomicInteger>> mainMap, Map<String, Integer> valueMap) {
         for (Map.Entry<String, Map<String, AtomicInteger>> entry : mainMap.entrySet()) {
             Map<String, AtomicInteger> mapValue = entry.getValue();
+
+            if(!valueMap.containsKey(entry.getKey())) {
+                valueMap.put(entry.getKey(),1);
+            }
 
             for (Map.Entry<String, AtomicInteger> entryMap : mapValue.entrySet()) {
                 String name = entryMap.getKey();
@@ -398,4 +461,21 @@ public class InformationGenerator {
     public Map<String, String> getFilesMethodsDependency() {
         return filesMethodsDependency;
     }
+
+    public List<Map<String, Map<String, AtomicInteger>>> getPackagesCalledMethodsRelationsMap() {
+        return packagesCalledMethodsRelationsMap;
+    }
+
+    public List<Map<String, Map<String, AtomicInteger>>> getPackagesCallingMethodsRelationsMap() {
+        return packagesCallingMethodsRelationsMap;
+    }
+
+    public List<Map<String, Integer>> getPackagesCalledMethodsWagesMap() {
+        return packagesCalledMethodsWagesMap;
+    }
+
+    public List<Map<String, Integer>> getPackagesCallingMethodsWagesMap() {
+        return packagesCallingMethodsWagesMap;
+    }
+
 }

@@ -4,9 +4,10 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         InformationGeneratorTest.class,
-        XMLCreatorTest.class,
+        ExportToXMLTest.class,
         JGraphXDrawTest.class,
         MaintenanceTest.class,
+        RevisionDifferenceTest.class,
         MainTest.class
 })
 
