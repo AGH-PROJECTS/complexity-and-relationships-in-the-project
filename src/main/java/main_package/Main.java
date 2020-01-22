@@ -228,5 +228,8 @@ public class Main {
         filesWeights = revisionDifference.findDifferences(old.getFilesWeights(), current.getFilesWeights());
 
         filesMethodsRelations = revisionDifference.findDifferences3(old.getFilesMethodsDependency(), current.getFilesMethodsDependency());
+        current.printRelations();
+        current.printWeigths();
+        current.partition(2);
     }
 }

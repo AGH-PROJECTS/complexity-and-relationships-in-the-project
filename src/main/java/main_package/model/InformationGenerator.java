@@ -14,6 +14,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSol
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import com.github.javaparser.utils.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -478,4 +479,110 @@ public class InformationGenerator {
         return packagesCallingMethodsWagesMap;
     }
 
+
+    public void printRelations()
+    {
+        Set<Map.Entry<String,Map<String,AtomicInteger>>> entrySet = methodsDependency.entrySet();
+
+        for(Map.Entry<String,Map<String,AtomicInteger>> entry: entrySet)
+        {
+            System.out.println(entry.getKey() + "\t" + entry.getValue());
+        }
+    }
+
+    public void printWeigths()
+    {
+        Set<Map.Entry<String,Integer>>entrySet = methodsWeights.entrySet();
+
+        for(Map.Entry<String,Integer> entry: entrySet)
+        {
+            System.out.println(entry.getKey() + "\t" + entry.getValue());
+        }
+    }
+
+    public void partition(int numberOfPartitions)
+    {
+        ArrayList<String> methodsName = new ArrayList<String>();
+        Set<Map.Entry<String,Map<String,AtomicInteger>>> entrySet = methodsDependency.entrySet();
+        Set<Map.Entry<String,Integer>> entrySet2 = methodsWeights.entrySet();
+        for(Map.Entry<String,Integer> entry: entrySet2)
+        {
+            methodsName.add(entry.getKey());
+        }
+        System.out.println("przerwa");
+        for(String entry: methodsName)
+        {
+            System.out.println(entry);
+        }
+
+
+        // wyznaczenie maksymalnej ilości wierzchołków w klastrze
+        int maxNumberOfVertexes = (methodsName.size()/numberOfPartitions) + 1;
+        int[] colorAmount = new int[numberOfPartitions];
+        ArrayList<Integer> vertexColors = new ArrayList<>();
+        for(int i = 0; i < methodsName.size(); i++)
+        {
+            //ustawienie wszystkich kolorów na non-colour
+            vertexColors.add(0);
+        }
+        ArrayList<Pair<String,Integer>> neighboursAmount = new ArrayList<>();
+        for(Map.Entry<String,Map<String,AtomicInteger>> entry: entrySet)
+        {
+            Pair<String,Integer> tmpPair = new Pair<>(entry.getKey(),entry.getValue().size());
+            neighboursAmount.add(tmpPair);
+        }
+        //dodanie wierzchołków bez sąsiadów
+//        for(String entry: methodsName)
+//        {
+//            for(Pair<String, Integer> pair :neighboursAmount)
+//                if(pair.a != )
+//                {
+//                    Pair<String,Integer> tmpPair = new Pair<>(entry,0);
+//                    neighboursAmount.add(tmpPair);
+//                }
+//        }
+        Collections.sort(neighboursAmount, new Comparator<Pair<String, Integer>>() {
+            @Override
+            public int compare(Pair<String, Integer> o1, Pair<String, Integer> o2) {
+                return o1.b.compareTo(o2.b);
+            }
+        });
+        System.out.println("przerwa");
+        for(Pair<String,Integer> element : neighboursAmount)
+        {
+            System.out.println(element.a + " " + element.b);
+        }
+
+
+
+//        // wyznaczenie minimalnej ilości wierzchołków w każdym klastrze
+//        int minimalNumberOfVertexes = methodsName.size()/numberOfPartitions;
+//        Collections.shuffle(methodsName);
+//        //kolorowanie na losowy kolor
+//        ArrayList<Integer> vertexColours = new ArrayList<Integer>();
+//        for(int i = 0; i < methodsName.size(); i++) {
+//            vertexColours.add(i % numberOfPartitions);
+//        }
+//        boolean change = true;
+//        int[][] numberOfConnections = new int[4][4];
+//        // początkowa ilośc ustawioa na 0
+//        for(int i = 0; i < numberOfPartitions; i++)
+//        {
+//            for(int j = 0; j < numberOfPartitions; j++) numberOfConnections[i][j] = 0;
+//        }
+//
+//        while(change)
+//        {
+//            change = false;
+//            int colour1, colour2;
+//            for(Map.Entry<String,Map<String,AtomicInteger>> entry: entrySet)
+//            {
+//                colour1 = vertexColours.get(methodsName.indexOf(entry.getKey()));
+//
+//            }
+//
+//        }
+
+
+    }
 }
