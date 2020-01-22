@@ -2,7 +2,11 @@ package main_package.model;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.ConditionalExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -173,8 +177,17 @@ public class InformationGenerator {
                     methodDeclaration.accept(packageNameSearching, null);
 
                     if (packageNameSearching.getMapSize() > 0) {
-                        String callingMethodName = methodDeclaration.getName().asString(); //nazwa metody ktora wola inne
-                        String callingPackageLongName = methodDeclaration.resolve().getPackageName(); //nazwa paczki w ktorejjest metoda ktora wola inne
+                        //String callingMethodName = methodDeclaration.getName().asString(); //nazwa metody ktora wola inne
+                         String callingPackageLongName = methodDeclaration.resolve().getPackageName(); //nazwa paczki w ktorejjest metoda ktora wola inne
+                        if(packagesRelationsMap.containsKey(packagesName)) {
+                            packagesRelationsMap.computeIfPresent(callingPackageLongName,(k,v)-> {
+                                v.putAll(packageNameSearching.getPackagesMap());
+                                return v;
+                            });
+                        } else {
+                            packagesRelationsMap.put(callingPackageLongName,packageNameSearching.getPackagesMap());
+                        }
+                        /*
 
                         callingMethodsMap.putIfAbsent(callingMethodName,new AtomicInteger(0));
                         callingMethodsMap.get(callingMethodName).incrementAndGet();
@@ -182,7 +195,7 @@ public class InformationGenerator {
 
                         packagesRelationsMap.put(callingPackageLongName, packageNameSearching.getPackagesMap());
                         packagesCalledMethodsRelationsMap.add(packageNameSearching.getPackagesMethodsRelation());
-                        packagesCallingMethodsRelationsMap.add(packagesMethodsRelation);
+                        packagesCallingMethodsRelationsMap.add(packagesMethodsRelation);*/
                     }
 
                 });
@@ -281,7 +294,15 @@ public class InformationGenerator {
                     FileNameSearching fileNameSearching = new FileNameSearching(packagesName);
                     mcd.accept(fileNameSearching, null);
                     if (fileNameSearching.getMapSize() > 0) {
-                        filesRelationsMap.put(fileName, fileNameSearching.getMethodMap());
+                        if(filesRelationsMap.containsKey(fileName)) {
+                            filesRelationsMap.computeIfPresent(fileName,(k,v)-> {
+                                v.putAll(fileNameSearching.getMethodMap());
+                                return v;
+                            });
+                        } else {
+                            filesRelationsMap.put(fileName,fileNameSearching.getMethodMap());
+                        }
+
                     }
                 });
 

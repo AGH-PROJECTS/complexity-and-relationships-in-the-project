@@ -49,7 +49,6 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(Maintenance.getVersionIdentifier());
         startView();
     }
 
@@ -67,9 +66,8 @@ public class Main {
     private static void startView() {
         loadData();
         JPanel allContent = new JPanel(new BorderLayout());
-
         JGraphXDraw applet = new JGraphXDraw();
-
+        applet.init();
         String[] optionStrings = {"Graf zależności między plikami", "Graf relacji między funkcjami(metodami)",
                 "Graf relacji między modułami logicznymi", "Graf 1 i 2", "Graf 1 i 3", "Graf 2 i 3", "Wszystkie grafy", "Graf relacji między plikami, " +
                 "a metodami(funkcjami)"};
@@ -79,12 +77,12 @@ public class Main {
         JPanel downPanel = new JPanel(new BorderLayout());
         JButton exportButton = new JButton("Export selected graph!");
         exportButton.addActionListener(e -> {
-            System.out.print(e.getActionCommand());
-            ExportToXML exportGraph;
+            System.out.println(e.getActionCommand());
+            ExportToXML exportGraph = new ExportToXML();
             if(comboControl==0||comboControl==1||comboControl==2||comboControl==3||comboControl==4||comboControl==5||comboControl==6)
-                exportGraph = new ExportToXML(relationsList, weightsList, optionStrings[comboControl]);
+                exportGraph.exportGraphToXML(relationsList, weightsList, optionStrings[comboControl]);
             else if (comboControl==7)
-                exportGraph = new ExportToXML(filesMethodsRelations, optionStrings[comboControl]);
+                exportGraph.exportGraphToXML(filesMethodsRelations, optionStrings[comboControl]);
             else
                 System.out.println("Nothing to export!");
         });
