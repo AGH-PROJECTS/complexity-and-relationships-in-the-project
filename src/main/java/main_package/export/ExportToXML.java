@@ -17,7 +17,7 @@ public class ExportToXML {
     private Properties xmlFileProperties;
     private Integer graphElementsIds = 1;
 
-    public ExportToXML(List<Map<String, Map<String, AtomicInteger>>> dataRelationsList, List<Map<String, Integer>> dataWeightsList, String name) {
+    public void exportGraphToXML(List<Map<String, Map<String, AtomicInteger>>> dataRelationsList, List<Map<String, Integer>> dataWeightsList, String name) {
         if (dataRelationsList == null || dataWeightsList == null || name == null) {
             throw new NullPointerException();
         }
@@ -29,7 +29,7 @@ public class ExportToXML {
         this.exportToFile(name);
     }
 
-    public ExportToXML(Map<String, String> relations, String name) {
+    public void exportGraphToXML(Map<String, String> relations, String name) {
         if (relations == null || name == null) {
             throw new NullPointerException();
         }
@@ -71,7 +71,7 @@ public class ExportToXML {
 
         for (Map.Entry<String, Map<String, AtomicInteger>> relation: relations.entrySet()) {
             for (Map.Entry<String, AtomicInteger> entry : relation.getValue().entrySet()) {
-                if (graphElementsWithIds.containsKey(entry))
+                if (graphElementsWithIds.containsKey(entry.getKey()))
                     continue;
                 graphElementsWithIds.put(entry.getKey(), graphElementsIds);
                 graphElementsIds++;

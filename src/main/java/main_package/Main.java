@@ -77,12 +77,12 @@ public class Main {
         JPanel downPanel = new JPanel(new BorderLayout());
         JButton exportButton = new JButton("Export selected graph!");
         exportButton.addActionListener(e -> {
-            System.out.print(e.getActionCommand());
-            ExportToXML exportGraph;
+            System.out.println(e.getActionCommand());
+            ExportToXML exportGraph = new ExportToXML();
             if(comboControl==0||comboControl==1||comboControl==2||comboControl==3||comboControl==4||comboControl==5||comboControl==6)
-                exportGraph = new ExportToXML(relationsList, weightsList, optionStrings[comboControl]);
+                exportGraph.exportGraphToXML(relationsList, weightsList, optionStrings[comboControl]);
             else if (comboControl==7)
-                exportGraph = new ExportToXML(filesMethodsRelations, optionStrings[comboControl]);
+                exportGraph.exportGraphToXML(filesMethodsRelations, optionStrings[comboControl]);
             else
                 System.out.println("Nothing to export!");
         });
