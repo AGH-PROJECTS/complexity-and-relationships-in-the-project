@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,35 +33,28 @@ public class RevisionDifference {
     }
 
     public static Map<String, Map<String, AtomicInteger>> findDifferences2(Map<String, Map<String, AtomicInteger>> old, Map<String, Map<String, AtomicInteger>> current) {
-        Map<String, Map<String, AtomicInteger>> diff = new HashMap<>();
-        List<String> newNames = new ArrayList<>();
-        Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet = current.entrySet();
-        for (Map.Entry<String, Map<String, AtomicInteger>> entry : entrySet) {
-            if (!old.containsKey(entry.getKey())) {
-                diff.put("*NEW*" + entry.getKey(), entry.getValue());
-                newNames.add(entry.getKey());
-            } else {
-                diff.put(entry.getKey(), entry.getValue());
-            }
+        Set<String> oldOnes = new LinkedHashSet<>();
+
+        for (Map.Entry<String, Map<String, AtomicInteger>> entry : old.entrySet()) {
+            oldOnes.addAll(entry.getValue().keySet());
         }
 
         Map<String, Map<String, AtomicInteger>> diff2 = new HashMap<>();
-        Set<Map.Entry<String, Map<String, AtomicInteger>>> entrySet1 = diff.entrySet();
-        for (Map.Entry<String, Map<String, AtomicInteger>> entry : entrySet1) {
+        for (Map.Entry<String, Map<String, AtomicInteger>> entry : current.entrySet()) {
             Map<String, AtomicInteger> sub = new HashMap<>();
-            Set<Map.Entry<String,AtomicInteger>> littleEntrySet = entry.getValue().entrySet();
-            for(Map.Entry<String, AtomicInteger> littleEntry : littleEntrySet){
-                if (newNames.contains(littleEntry.getKey())) {
+            for (Map.Entry<String, AtomicInteger> littleEntry : entry.getValue().entrySet()) {
+                if (!oldOnes.contains(littleEntry.getKey())) {
                     sub.put("*NEW*" + littleEntry.getKey(), littleEntry.getValue());
                 } else {
                     sub.put(littleEntry.getKey(), littleEntry.getValue());
                 }
             }
-            diff2.put(entry.getKey(), sub);
+            if (!old.containsKey(entry.getKey())) {
+                diff2.put("*NEW*" + entry.getKey(), sub);
+            } else {
+                diff2.put(entry.getKey(), sub);
+            }
         }
-
-
-
 
         return diff2;
     }
