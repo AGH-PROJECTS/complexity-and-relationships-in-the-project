@@ -49,7 +49,6 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(Maintenance.getVersionIdentifier());
         startView();
     }
 
@@ -67,9 +66,8 @@ public class Main {
     private static void startView() {
         loadData();
         JPanel allContent = new JPanel(new BorderLayout());
-
         JGraphXDraw applet = new JGraphXDraw();
-
+        applet.init();
         String[] optionStrings = {"Graf zależności między plikami", "Graf relacji między funkcjami(metodami)",
                 "Graf relacji między modułami logicznymi", "Graf 1 i 2", "Graf 1 i 3", "Graf 2 i 3", "Wszystkie grafy", "Graf relacji między plikami, " +
                 "a metodami(funkcjami)"};

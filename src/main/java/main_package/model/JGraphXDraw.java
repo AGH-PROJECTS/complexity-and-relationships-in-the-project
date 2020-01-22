@@ -33,10 +33,6 @@ public class JGraphXDraw extends JApplet {
         return newGraph;
     }
 
-    public JGraphXDraw() throws HeadlessException {
-        init();
-    }
-
     public void createGraphX(List<Map<String, Map<String, AtomicInteger>>> dataRelationsList, List<Map<String, Integer>> dataWeightsList, Map<String, Integer> methodsComplexity, JFrame frame) {
         if (dataRelationsList == null || dataWeightsList == null) {
             throw new NullPointerException();
