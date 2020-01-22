@@ -15,11 +15,24 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RevisionDifference {
-    private static final String RESOURCES = System.getProperty("user.dir") + "\\src\\main\\resources\\clone";
-    public static final String PATH = RESOURCES + "\\src\\main\\java";
-    private static final String REMOTE_REPOSITORY = "https://github.com/dawidkruczek/projectIO.git";
+    private static String RESOURCES;
+    public static String PATH;
+    private String REMOTE_REPOSITORY;
+    private static Iterable<RevCommit> logs;
+    private static Git git;
+    private static int i = 0;
 
-    public static Map<String,String> findDifferences3(Map<String, String> old, Map<String,String> current){
+    public RevisionDifference(String remoteRepo) {
+        RESOURCES = System.getProperty("user.dir") + "\\src\\main\\resources\\downloads\\clone_" + i++;
+        PATH = RESOURCES + "\\src\\main\\java";
+        this.REMOTE_REPOSITORY = remoteRepo;
+    }
+
+    public void setPATH(String PATH) {
+        RevisionDifference.PATH = RESOURCES + PATH;
+    }
+
+    public Map<String,String> findDifferences3(Map<String, String> old, Map<String,String> current){
         Map<String, String> diff = new HashMap<>();
         Set<Map.Entry<String, String>> entrySet = current.entrySet();
         for (Map.Entry<String, String> entry : entrySet) {
@@ -32,7 +45,7 @@ public class RevisionDifference {
         return diff;
     }
 
-    public static Map<String, Map<String, AtomicInteger>> findDifferences2(Map<String, Map<String, AtomicInteger>> old, Map<String, Map<String, AtomicInteger>> current) {
+    public Map<String, Map<String, AtomicInteger>> findDifferences2(Map<String, Map<String, AtomicInteger>> old, Map<String, Map<String, AtomicInteger>> current) {
         Set<String> oldOnes = new LinkedHashSet<>();
 
         for (Map.Entry<String, Map<String, AtomicInteger>> entry : old.entrySet()) {
@@ -59,7 +72,7 @@ public class RevisionDifference {
         return diff2;
     }
 
-    public static Map<String, Integer> findDifferences(Map<String, Integer> old, Map<String, Integer> current) {
+    public Map<String, Integer> findDifferences(Map<String, Integer> old, Map<String, Integer> current) {
         Map<String, Integer> diff = new HashMap<>();
         Set<Map.Entry<String, Integer>> entrySet = current.entrySet();
         for (Map.Entry<String, Integer> entry : entrySet) {
@@ -72,28 +85,35 @@ public class RevisionDifference {
         return diff;
     }
 
-    public static void getRepository() throws GitAPIException, IOException {
+    public void getRepository() throws GitAPIException, IOException {
         File file = new File(RESOURCES);
         if (!file.exists())
             file.mkdir();
         deleteDirectory(file);
-        Git git = Git.cloneRepository()
+        git = Git.cloneRepository()
                 .setURI(REMOTE_REPOSITORY)
                 .setDirectory(file)
                 .call();
+    }
 
+    public void goToPreviousMerge() throws GitAPIException, IOException {
         List<RevCommit> merges = new ArrayList<>();
-        Iterable<RevCommit> logs = git.log().all().call();
+        List<RevCommit> commits = new ArrayList<>();
+        logs = git.log().all().call();
         for (RevCommit rev : logs) {
+            commits.add(rev);
             if (rev.getShortMessage().contains("Merge")) {
                 merges.add(rev);
             }
         }
         if (merges.size() > 2)
             git.checkout().setName(merges.get(1).getId().getName()).call();
+        else
+            git.checkout().setName(commits.get(1).getId().getName()).call();
+
     }
 
-    private static void deleteDirectory(File file) throws IOException {
+    private void deleteDirectory(File file) throws IOException {
         if (file.isDirectory()) {
             File[] entries = file.listFiles();
             if (entries != null) {

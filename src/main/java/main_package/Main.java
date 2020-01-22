@@ -38,10 +38,12 @@ public class Main {
     private static List<Map<String, Map<String, AtomicInteger>>> relationsList = new ArrayList<>();
     private static List<Map<String, Integer>> weightsList = new ArrayList<>();
     private static int comboControl = 0;
+    private static RevisionDifference revisionDifference;
 
     public static void main(String[] args) {
         try {
-            RevisionDifference.getRepository();
+            revisionDifference = new RevisionDifference("https://github.com/dawidkruczek/projectIO.git");
+            revisionDifference.getRepository();
         } catch (GitAPIException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -49,6 +51,17 @@ public class Main {
         }
         System.out.println(Maintenance.getVersionIdentifier());
         startView();
+    }
+
+    private static void loadNewRepository(String url){
+        try {
+            revisionDifference = new RevisionDifference(url);
+            revisionDifference.getRepository();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void startView() {
@@ -80,13 +93,18 @@ public class Main {
         changeSource.addActionListener(e -> {
             if(e.getActionCommand().contains("Change source for another project")){
                 changeSource.setText("Change source for your project");
-                Maintenance.MAIN_PATH = "path to another project";
+                //Maintenance.MAIN_PATH = "path to another project";
+                loadNewRepository("https://github.com/maciejsikora2302/Evolution-Generator.git");
+                revisionDifference.setPATH("\\src");
                 applet.getNewGraph().removeCells(applet.getNewGraph().getChildVertices(applet.getNewGraph().getDefaultParent()));
                 loadData();
             }
             else{
                 changeSource.setText("Change source for another project");
-                Maintenance.MAIN_PATH = "src/main/java";
+                //Maintenance.MAIN_PATH = "src/main/java";
+                loadNewRepository("https://github.com/dawidkruczek/projectIO.git");
+                revisionDifference.setPATH("\\src\\main\\java");
+                applet.getNewGraph().removeCells(applet.getNewGraph().getChildVertices(applet.getNewGraph().getDefaultParent()));
                 loadData();
             }
         });
@@ -188,20 +206,28 @@ public class Main {
 
     }
     private static void loadData(){
-        InformationGenerator current = new InformationGenerator(Maintenance.MAIN_PATH);
-        InformationGenerator old = new InformationGenerator(RevisionDifference.PATH);
+        //InformationGenerator current = new InformationGenerator(Maintenance.MAIN_PATH);
+        InformationGenerator current = new InformationGenerator(revisionDifference.PATH);
+        try {
+            revisionDifference.goToPreviousMerge();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        InformationGenerator old = new InformationGenerator(revisionDifference.PATH);
 
 
-        methodsRelations = RevisionDifference.findDifferences2(old.getMethodsDependency(), current.getMethodsDependency());
-        methodsWeights = RevisionDifference.findDifferences(old.getMethodsWeights(), current.getMethodsWeights());
+        methodsRelations = revisionDifference.findDifferences2(old.getMethodsDependency(), current.getMethodsDependency());
+        methodsWeights = revisionDifference.findDifferences(old.getMethodsWeights(), current.getMethodsWeights());
         methodsComplexity = current.getMethodsComplexity();
 
-        packagesRelations = RevisionDifference.findDifferences2(old.getPackagesDependency(), current.getPackagesDependency());
-        packagesWeights = RevisionDifference.findDifferences(old.getPackagesWeights(), current.getPackagesWeights());
+        packagesRelations = revisionDifference.findDifferences2(old.getPackagesDependency(), current.getPackagesDependency());
+        packagesWeights = revisionDifference.findDifferences(old.getPackagesWeights(), current.getPackagesWeights());
 
-        filesRelations = RevisionDifference.findDifferences2(old.getFilesDependency(), current.getFilesDependency());
-        filesWeights = RevisionDifference.findDifferences(old.getFilesWeights(), current.getFilesWeights());
+        filesRelations = revisionDifference.findDifferences2(old.getFilesDependency(), current.getFilesDependency());
+        filesWeights = revisionDifference.findDifferences(old.getFilesWeights(), current.getFilesWeights());
 
-        filesMethodsRelations = RevisionDifference.findDifferences3(old.getFilesMethodsDependency(), current.getFilesMethodsDependency());
+        filesMethodsRelations = revisionDifference.findDifferences3(old.getFilesMethodsDependency(), current.getFilesMethodsDependency());
     }
 }
