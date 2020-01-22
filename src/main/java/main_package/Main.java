@@ -45,6 +45,9 @@ public class Main {
 
     public static void main(String[] args) {
         Maintenance.getDataFromFile();
+        RevisionDifference.createFolders();
+        loadNewRepository(Maintenance.OUR_SOURCE_GIT);
+        loadNewRepository(Maintenance.EXTERNAL_SOURCE_GIT);
 
         try {
 
@@ -98,7 +101,7 @@ public class Main {
             if(e.getActionCommand().contains("Change source for another project")){
                 changeSource.setText("Change source for your project");
                 //Maintenance.MAIN_PATH = "path to another project";
-                loadNewRepository(Maintenance.EXTERNAL_SOURCE_GIT);
+                //loadNewRepository(Maintenance.EXTERNAL_SOURCE_GIT);
                 revisionDifference.setPATH(Maintenance.SRC);
                 applet.getNewGraph().removeCells(applet.getNewGraph().getChildVertices(applet.getNewGraph().getDefaultParent()));
                 loadData();
@@ -106,7 +109,7 @@ public class Main {
             else{
                 changeSource.setText("Change source for another project");
                 //Maintenance.MAIN_PATH = "src/main/java";
-                loadNewRepository(Maintenance.OUR_SOURCE_GIT);
+                //loadNewRepository(Maintenance.OUR_SOURCE_GIT);
                 revisionDifference.setPATH(Maintenance.SRC_FULL);
                 applet.getNewGraph().removeCells(applet.getNewGraph().getChildVertices(applet.getNewGraph().getDefaultParent()));
                 loadData();
