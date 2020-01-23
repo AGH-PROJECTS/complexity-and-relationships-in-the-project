@@ -43,7 +43,18 @@ public class Main {
     private static int comboControl = 0;
     private static RevisionDifference revisionDifference;
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
+        try {
+
+
+            File file = new File("out.txt");
+            PrintStream stream = new PrintStream(file);
+            System.setOut(stream);
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
         Maintenance.getDataFromFile();
 
         try {

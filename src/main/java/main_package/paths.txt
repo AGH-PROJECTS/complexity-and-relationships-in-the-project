@@ -1,0 +1,4 @@
+https://github.com/dawidkruczek/projectIO.git
+https://github.com/maciejsikora2302/Evolution-Generator.git
+\src
+\src\main\java
