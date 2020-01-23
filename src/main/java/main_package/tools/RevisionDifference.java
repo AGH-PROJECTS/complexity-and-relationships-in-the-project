@@ -17,8 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RevisionDifference {
     private static String RESOURCES;
     public String PATH;
-    public static String PATH_1;
-    public static String PATH_2;
     private String REMOTE_REPOSITORY;
     private static Iterable<RevCommit> logs;
     private static Git git;
@@ -34,19 +32,6 @@ public class RevisionDifference {
         File file = new File(System.getProperty("user.dir") + "\\src\\main\\resources\\downloads");
         if (!file.exists())
             file.mkdir();
-    }
-
-    public static void createFolders()
-    {
-        PATH_1 = System.getProperty("user.dir") + "\\src\\main\\resources\\downloads\\clone_0";
-        PATH_2 = System.getProperty("user.dir") + "\\src\\main\\resources\\downloads\\clone_1";
-        File file1 = new File(PATH_1);
-        File file2 = new File(PATH_2);
-        if(!file1.exists()) file1.mkdir();
-        else System.out.println("Dir. already exists");
-        if(!file2.exists()) file2.mkdir();
-        else System.out.println("Dir. already exists");
-        //file2.mkdir();
     }
 
     public void setPATH(String PATH) {
